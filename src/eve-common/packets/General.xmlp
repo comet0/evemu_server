@@ -251,7 +251,7 @@
 
   <elementDef name="macho_WrongMachoNode">
     <objectInline>
-        <stringInline value="macho.WrongMachoNode" />
+        <stringInline value="carbon.common.script.net.machoNetPacket.WrongMachoNode" />
       <dictInline>
           <dictInlineEntry key="payload">
             <int name="nodeID" />

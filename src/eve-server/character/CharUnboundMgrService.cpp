@@ -51,6 +51,7 @@ CharUnboundMgrService::CharUnboundMgrService()
     PyCallable_REG_CALL(CharUnboundMgrService, GetCharCreationInfo)
     PyCallable_REG_CALL(CharUnboundMgrService, GetCharNewExtraCreationInfo)
     PyCallable_REG_CALL(CharUnboundMgrService, CreateCharacterWithDoll)
+    PyCallable_REG_CALL(CharUnboundMgrService, GetCharacterSelectionData)
 }
 
 CharUnboundMgrService::~CharUnboundMgrService() {
@@ -394,4 +395,101 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
     ItemFactory::UnsetUsingClient();
 
     return new PyInt( char_item->itemID() );
+}
+
+PyResult CharUnboundMgrService::Handle_GetCharacterSelectionData(PyCallArgs &call)
+{
+    uint32 accountID = call.client->GetAccountID();
+
+    PyTuple *rtn = new PyTuple(3);
+
+    // userDetails
+    PyDict *userDetails = new PyDict();
+    userDetails->SetItem("userName", new PyWString((std::string)"test"));
+    userDetails->SetItem("creationDate", new PyLong(130954571020000000));
+    userDetails->SetItem("characterSlots", new PyInt(4));
+    userDetails->SetItem("maxCharacterSlots", new PyWString((std::string)"4"));
+    userDetails->SetItem("subscriptionEndTime", new PyLong(131966695130000000));
+
+    PyObject *userDetails_obj = new PyObject("util.KeyVal", userDetails);
+    rtn->SetItem(0, new_tuple(userDetails_obj));
+
+    // trainingEnds
+    rtn->SetItem(1, new PyList(0));
+
+    DBQueryResult res;
+    if (!DBcore::RunQuery(res,
+                          "SELECT"
+                          " characterID, entity.itemName AS characterName,"
+                          " character_.balance, skillPoints, entity.typeID,"
+                          " gender, bloodlineID, character_.corporationID,"
+                          " allianceID, ship.typeID as shipTypeID,"
+                          " character_.stationID, character_.solarSystemID, mapSolarSystems.security"
+                          " FROM character_ "
+                          "    LEFT JOIN entity ON characterID = itemID"
+                          "    LEFT JOIN chrAncestries ON chrAncestries.ancestryID = character_.ancestryID"
+                          "    LEFT JOIN corporation ON corporation.corporationID = character_.corporationID"
+                          "    LEFT JOIN entity AS ship ON ship.itemID = shipID"
+                          "    LEFT JOIN mapSolarSystems ON mapSolarSystems.solarSystemID = character_.solarSystemID"
+                          " WHERE accountID=%u", accountID))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
+    }
+    int chars = res.GetRowCount();
+    while (chars-- > 0)
+    {
+    }
+    DBResultRow row;
+    res.GetRow(row);
+    uint32 charID = row.GetUInt(0);
+    std::string charName = row.GetText(1);
+    double balance = row.GetDouble(2);
+    int32 skillPoints = row.GetInt(3);
+    uint32 typeID = row.GetUInt(4);
+    bool gender = (row.GetInt(5) == 1) ? true : false;
+    int32 bloodlineID = row.GetInt(6);
+    int32 corporationID = row.GetInt(7);
+    int32 allianceID = row.GetInt(8);
+    int32 shipTypeID = row.GetInt(9);
+    int32 stationID = row.GetInt(10);
+    int32 solarSystemID = row.GetInt(11);
+    double security = row.GetDouble(12);
+
+    // characterDetails
+    PyDict *characterDetails = new PyDict();
+    characterDetails->SetItem("characterID", new PyInt(charID));
+    characterDetails->SetItem("logoffDate", new PyLong(130954612960000000));
+    characterDetails->SetItem("skillPoints", new PyInt(skillPoints));
+    characterDetails->SetItem("paperdollState", new PyInt(1));
+    characterDetails->SetItem("characterName", new PyWString(charName));
+    characterDetails->SetItem("typeID", new PyInt(typeID));
+    characterDetails->SetItem("gender", new PyBool(gender));
+    characterDetails->SetItem("bloodlineID", new PyInt(bloodlineID));
+    characterDetails->SetItem("deletePrepareDateTime", new PyNone());
+    characterDetails->SetItem("balance", new PyLong(balance));
+    characterDetails->SetItem("balanceChange", new PyInt(0));
+    characterDetails->SetItem("corporationID", new PyInt(corporationID));
+    characterDetails->SetItem("allianceID", (allianceID == 0) ? (PyRep *)new PyNone() : (PyRep *)new PyInt(allianceID));
+    characterDetails->SetItem("unreadMailCount", new PyInt(0));
+    characterDetails->SetItem("unprocessedNotifications", new PyInt(0));
+    characterDetails->SetItem("shipTypeID", new PyInt(shipTypeID));
+    characterDetails->SetItem("solarSystemID", new PyInt(solarSystemID));
+    characterDetails->SetItem("stationID", (stationID == 0) ? (PyRep *)new PyNone() : (PyRep *)new PyInt(stationID));
+    characterDetails->SetItem("locationSecurity", new PyFloat(security));
+    characterDetails->SetItem("petitionMessage", new PyBool(false));
+    characterDetails->SetItem("finishedSkills", new PyInt(0));
+    characterDetails->SetItem("skillsInQueue", new PyInt(0));
+    characterDetails->SetItem("skillTypeID", new PyNone());
+    characterDetails->SetItem("toLevel", new PyNone());
+    characterDetails->SetItem("trainingStartTime", new PyNone());
+    characterDetails->SetItem("trainingEndTime", new PyNone());
+    characterDetails->SetItem("queueEndTime", new PyNone());
+    characterDetails->SetItem("finishSP", new PyNone());
+    characterDetails->SetItem("trainedSP", new PyNone());
+    characterDetails->SetItem("fromSP", new PyNone());
+
+    PyObject *characterDetails_obj = new PyObject("util.KeyVal", characterDetails);
+    rtn->SetItem(2, new_tuple(characterDetails_obj));
+    return rtn;
 }

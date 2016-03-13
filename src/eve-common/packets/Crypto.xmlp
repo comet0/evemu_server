@@ -110,6 +110,9 @@
           <dictInlineEntry key="user_affiliateid">
               <int name="user_affiliateid" />
           </dictInlineEntry>
+          <dictInlineEntry key="user_sso_token">
+              <objectEx name="user_sso_token" type="PasswordString" optional="true"/>
+          </dictInlineEntry>
         </dictInline>
     </tupleInline>
   </elementDef>
