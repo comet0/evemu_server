@@ -709,7 +709,7 @@ void Client::_SendCallReturn( const PyAddress& source, uint64 callID, PyRep** re
 {
     //build the packet:
     PyPacket* p = new PyPacket;
-    p->type_string = "macho.CallRsp";
+    p->type_string = "carbon.common.script.net.machoNetPacket.CallRsp";
     p->type = CALL_RSP;
 
     p->source = source;
@@ -737,7 +737,7 @@ void Client::_SendException( const PyAddress& source, uint64 callID, MACHONETMSG
 {
     //build the packet:
     PyPacket* p = new PyPacket;
-    p->type_string = "macho.ErrorResponse";
+    p->type_string = "carbon.common.script.net.machoNetPacket.ErrorResponse";
     p->type = ERRORRESPONSE;
 
     p->source = source;
@@ -778,7 +778,7 @@ void Client::_SendSessionChange()
 
     //build the packet:
     PyPacket* p = new PyPacket;
-    p->type_string = "macho.SessionChangeNotification";
+    p->type_string = "carbon.common.script.net.machoNetPacket.SessionChangeNotification";
     p->type = SESSIONCHANGENOTIFICATION;
 
     p->source.type = PyAddress::Node;
@@ -812,7 +812,7 @@ void Client::_SendPingRequest()
     PyPacket *ping_req = new PyPacket();
 
     ping_req->type = PING_REQ;
-    ping_req->type_string = "macho.PingReq";
+    ping_req->type_string = "carbon.common.script.net.machoNetPacket.PingReq";
 
     ping_req->source.type = PyAddress::Node;
     ping_req->source.typeID = PyServiceMgr::GetNodeID();
@@ -835,7 +835,7 @@ void Client::_SendPingResponse( const PyAddress& source, uint64 callID )
 {
     PyPacket* ret = new PyPacket;
     ret->type = PING_RSP;
-    ret->type_string = "macho.PingRsp";
+    ret->type_string = "carbon.common.script.net.machoNetPacket.PingRsp";
 
     ret->source = source;
 
@@ -977,7 +977,7 @@ void Client::SendNotification(const PyAddress &dest, EVENotificationStream &noti
 
     //build the packet:
     PyPacket *p = new PyPacket();
-    p->type_string = "macho.Notification";
+    p->type_string = "carbon.common.script.net.machoNetPacket.Notification";
     p->type = NOTIFICATION;
 
     p->source.type = PyAddress::Node;
