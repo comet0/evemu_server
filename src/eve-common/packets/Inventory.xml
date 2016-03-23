@@ -194,7 +194,7 @@
 
     <elementDef name="Rsp_ItemGetInfo">
         <objectInline>
-            <stringInline value="util.KeyVal" />
+            <stringInline value="utillib.KeyVal" />
             <element name="entry" type="Rsp_CommonGetInfo_Entry" />
         </objectInline>
     </elementDef>
@@ -248,7 +248,7 @@
 
     <elementDef name="Rsp_GetOptionsForItemTypes_Arg">
         <objectInline>
-            <stringInline value="util.KeyVal" />
+            <stringInline value="utillib.KeyVal" />
             <dictInline>
                 <dictInlineEntry key="isRecyclable">
                     <bool name="isRecyclable" />

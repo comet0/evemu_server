@@ -91,7 +91,7 @@
 
     <elementDef name="MailLabel">
         <objectInline>
-            <stringInline value="util.KeyVal" />
+            <stringInline value="utillib.KeyVal" />
             <dictInline>
                 <dictInlineEntry key="labelID">
                     <int name="id" />

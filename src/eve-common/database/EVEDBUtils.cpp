@@ -238,7 +238,7 @@ PyObject *DBResultToIndexRowset(DBQueryResult &result, uint32 key_index) {
 PyObject *DBRowToKeyVal(DBResultRow &row) {
 
     PyDict *args = new PyDict();
-    PyObject *res = new PyObject( "util.KeyVal", args );
+    PyObject *res = new PyObject( "utillib.KeyVal", args );
 
     uint32 cc = row.ColumnCount();
     for( uint32 r = 0; r < cc; r++ )
