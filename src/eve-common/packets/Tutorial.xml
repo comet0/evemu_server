@@ -8,7 +8,7 @@
 
     <elementDef name="Rsp_GetTutorialInfo">
         <objectInline>
-            <stringInline value="util.KeyVal" />
+            <stringInline value="utillib.KeyVal" />
             <dictInline>
                 <dictInlineEntry key="pagecriterias">
                     <raw name="pagecriterias" />

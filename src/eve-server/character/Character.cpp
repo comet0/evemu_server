@@ -1133,7 +1133,7 @@ PyDict *Character::CharGetInfo() {
 
     if(!Populate(entry))
         return NULL;
-    result->SetItem(new PyInt(m_itemID), new PyObject("util.KeyVal", entry.Encode()));
+    result->SetItem(new PyInt(m_itemID), new PyObject("utillib.KeyVal", entry.Encode()));
 
     //now encode skills...
     std::vector<InventoryItemRef> skills;
@@ -1149,7 +1149,7 @@ PyDict *Character::CharGetInfo() {
         if(!(*cur)->Populate(entry)) {
             codelog(ITEM__ERROR, "%s (%u): Failed to load skill item %u for CharGetInfo", m_itemName.c_str(), itemID(), (*cur)->itemID());
         } else {
-            result->SetItem(new PyInt((*cur)->itemID()), new PyObject("util.KeyVal", entry.Encode()));
+            result->SetItem(new PyInt((*cur)->itemID()), new PyObject("utillib.KeyVal", entry.Encode()));
         }
     }
 

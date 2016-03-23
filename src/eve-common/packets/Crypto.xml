@@ -181,7 +181,7 @@
 
     <elementDef name="LiveUpdateInner">
         <objectInline>
-            <stringInline value="util.KeyVal" />
+            <stringInline value="utillib.KeyVal" />
             <dictInline>
                 <dictInlineEntry key="codeType">
                     <string name="codeType" />

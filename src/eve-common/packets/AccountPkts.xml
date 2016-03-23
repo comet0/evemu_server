@@ -82,7 +82,7 @@
             <!-- 0 -->
             <substreamInline>
                 <objectInline>
-                    <stringInline value="util.KeyVal" />
+                    <stringInline value="utillib.KeyVal" />
                     <dictInline>
                         <dictInlineEntry key="message">
                             <string name="message" />

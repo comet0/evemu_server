@@ -646,7 +646,7 @@
             <tupleInline>
                 <!-- 0 -->
                 <objectInline>
-                    <stringInline value="util.KeyVal" />
+                    <stringInline value="utillib.KeyVal" />
                     <dictInline>
                         <dictInlineEntry key="stamp">
                             <int name="stamp" />

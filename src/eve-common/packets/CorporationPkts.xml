@@ -52,7 +52,7 @@
 
     <elementDef name="Item_GetSuggestedTickerNames">
         <objectInline>
-            <stringInline value="util.KeyVal" />
+            <stringInline value="utillib.KeyVal" />
             <dictInline>
                 <dictInlineEntry key="tickerName">
                     <string name="tN" />
