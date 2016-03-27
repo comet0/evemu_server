@@ -213,6 +213,13 @@
     </tupleInline>
   </elementDef>
 
+  <elementDef name="Call_ValidateNameEx">
+    <tupleInline>
+      <string name="name" />
+      <int name="trys" />
+    </tupleInline>
+  </elementDef>
+
 </elements>
 
 
