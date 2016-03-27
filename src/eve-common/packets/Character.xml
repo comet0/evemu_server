@@ -102,11 +102,11 @@
             <int name="genderID" />
             <int name="ancestryID" />
             <objectInline>
-                <stringInline value="util.KeyVal"/>
+                <stringInline value="utillib.KeyVal"/>
                 <dict name="avatarInfo" />
             </objectInline>
             <objectInline>
-                <stringInline value="util.KeyVal"/>
+                <stringInline value="utillib.KeyVal"/>
                 <dict name="poseInfo" />
             </objectInline>
             <int name="schoolID" />
