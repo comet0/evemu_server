@@ -420,17 +420,17 @@ PyResult CharUnboundMgrService::Handle_GetCharacterSelectionData(PyCallArgs &cal
     DBQueryResult res;
     if (!DBcore::RunQuery(res,
                           "SELECT"
-                          " characterID, entity.itemName AS characterName,"
-                          " character_.balance, skillPoints, entity.typeID,"
-                          " gender, bloodlineID, character_.corporationID,"
+                          " characterID, srvEntity.itemName AS characterName,"
+                          " srvCharacter.balance, skillPoints, srvEntity.typeID,"
+                          " gender, bloodlineID, srvCharacter.corporationID,"
                           " allianceID, ship.typeID as shipTypeID,"
-                          " character_.stationID, character_.solarSystemID, mapSolarSystems.security"
-                          " FROM character_ "
-                          "    LEFT JOIN entity ON characterID = itemID"
-                          "    LEFT JOIN chrAncestries ON chrAncestries.ancestryID = character_.ancestryID"
-                          "    LEFT JOIN corporation ON corporation.corporationID = character_.corporationID"
-                          "    LEFT JOIN entity AS ship ON ship.itemID = shipID"
-                          "    LEFT JOIN mapSolarSystems ON mapSolarSystems.solarSystemID = character_.solarSystemID"
+                          " srvCharacter.stationID, solarSystemID, security"
+                          " FROM srvCharacter "
+                          "    LEFT JOIN srvEntity ON characterID = itemID"
+                          "    LEFT JOIN chrAncestries USING(ancestryID)"
+                          "    LEFT JOIN srvCorporation USING(corporationID)"
+                          "    LEFT JOIN srvEntity AS ship ON ship.itemID = shipID"
+                          "    LEFT JOIN mapSolarSystems USING(solarSystemID)"
                           " WHERE accountID=%u", accountID))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
