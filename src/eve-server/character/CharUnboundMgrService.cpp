@@ -68,14 +68,14 @@ PyResult CharUnboundMgrService::Handle_IsUserReceivingCharacter(PyCallArgs &call
 
 PyResult CharUnboundMgrService::Handle_ValidateNameEx(PyCallArgs &call)
 {
-    Call_SingleWStringArg arg;
+    Call_ValidateNameEx arg;
     if (!arg.Decode(&call.tuple))
     {
         codelog(CLIENT__ERROR, "Failed to decode args for ValidateNameEx call");
         return NULL;
     }
 
-    return new PyBool(CharacterDB::ValidateCharName(arg.arg.c_str()));
+    return new PyBool(CharacterDB::ValidateCharName(arg.name.c_str()));
 }
 
 PyResult CharUnboundMgrService::Handle_SelectCharacterID(PyCallArgs &call) {
