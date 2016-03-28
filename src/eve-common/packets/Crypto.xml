@@ -161,7 +161,33 @@
                         <dictInlineEntry key="imageserverurl">
                             <string name="imageserverurl" />
                         </dictInlineEntry>
-
+                        <dictInlineEntry key="publicCrestUrl">
+                            <string name="publicCrestUrl" />
+                        </dictInlineEntry>
+                        <dictInlineEntry key="bugReporting_BugReportServer">
+                            <string name="bugReporting_BugReportServer" />
+                        </dictInlineEntry>
+                        <dictInlineEntry key="sessionChangeDelay">
+                            <string name="sessionChangeDelay" />
+                        </dictInlineEntry>
+                        <dictInlineEntry key="experimental_scanners">
+                            <string name="experimental_scanners" />
+                        </dictInlineEntry>
+                        <dictInlineEntry key="experimental_map_default">
+                            <string name="experimental_map_default" />
+                        </dictInlineEntry>
+                        <dictInlineEntry key="experimental_newcam3">
+                            <string name="experimental_newcam3" />
+                        </dictInlineEntry>
+                        <dictInlineEntry key="isProjectDiscoveryEnabled">
+                            <string name="isProjectDiscoveryEnabled" />
+                        </dictInlineEntry>
+                        <dictInlineEntry key="bugReporting_ShowButton">
+                            <string name="bugReporting_ShowButton" />
+                        </dictInlineEntry>
+                        <dictInlineEntry key="serverInfo">
+                            <string name="serverInfo" />
+                        </dictInlineEntry>
                     </dictInline>
                 </dictInlineEntry>
             </dictInline>
@@ -201,19 +227,30 @@
 
     <elementDef name="CryptoHandshakeAck">
         <dictInline>
+            <dictInlineEntry key="access_token">
+                <raw name="access_token" />
+            </dictInlineEntry>
+            <dictInlineEntry key="client_hash">
+                <raw name="client_hash" />
+            </dictInlineEntry>
+            <dictInlineEntry key="sessionID">
+                <long name="sessionID" />
+            </dictInlineEntry>
+            <dictInlineEntry key="user_clientid">
+                <long name="user_clientid" />
+            </dictInlineEntry>
             <dictInlineEntry key="live_updates">
-                <list name="live_updates" />
+                <raw name="live_updates" />
             </dictInlineEntry>
             <dictInlineEntry key="session_init">
                 <dictInline>
                     <dictInlineEntry key="languageID">
-                        <string name="jit" />
+                        <string name="languageID" />
                     </dictInlineEntry>
                     <dictInlineEntry key="userid">
                         <int name="userid" />
                     </dictInlineEntry>
                     <dictInlineEntry key="maxSessionTime">
-                        <!-- Seen 'None' -->
                         <raw name="maxSessionTime" />
                     </dictInlineEntry>
                     <dictInlineEntry key="userType">
@@ -226,16 +263,9 @@
                         <string name="address" />
                     </dictInlineEntry>
                     <dictInlineEntry key="inDetention">
-                        <!-- Seen 'None' -->
                         <raw name="inDetention" />
                     </dictInlineEntry>
                 </dictInline>
-            </dictInlineEntry>
-            <dictInlineEntry key="client_hash">
-                <raw name="client_hash" />
-            </dictInlineEntry>
-            <dictInlineEntry key="user_clientid">
-                <long name="user_clientid" />
             </dictInlineEntry>
         </dictInline>
     </elementDef>
