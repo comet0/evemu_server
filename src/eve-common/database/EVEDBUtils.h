@@ -72,6 +72,7 @@ PyObjectEx *DBResultToCIndexedRowset(DBQueryResult &result, uint32 key_index);
 PyObject *DBRowToKeyVal(DBResultRow &row);
 PyObject *DBRowToRow(DBResultRow &row, const char *type = "util.Row");
 PyPackedRow *DBRowToPackedRow(DBResultRow &row);
+PyTuple *DBResultToTupleKeyVal(DBQueryResult &result);
 
 
 #endif
