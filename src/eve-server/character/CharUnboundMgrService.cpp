@@ -404,92 +404,73 @@ PyResult CharUnboundMgrService::Handle_GetCharacterSelectionData(PyCallArgs &cal
     PyTuple *rtn = new PyTuple(3);
 
     // userDetails
-    PyDict *userDetails = new PyDict();
-    userDetails->SetItem("userName", new PyWString((std::string)"test"));
-    userDetails->SetItem("creationDate", new PyLong(130954571020000000));
-    userDetails->SetItem("characterSlots", new PyInt(4));
-    userDetails->SetItem("maxCharacterSlots", new PyWString((std::string)"4"));
-    userDetails->SetItem("subscriptionEndTime", new PyLong(131966695130000000));
-
-    PyObject *userDetails_obj = new PyObject("util.KeyVal", userDetails);
-    rtn->SetItem(0, new_tuple(userDetails_obj));
-
-    // trainingEnds
-    rtn->SetItem(1, new PyList(0));
-
     DBQueryResult res;
-    if (!DBcore::RunQuery(res,
-                          "SELECT"
-                          " characterID, srvEntity.itemName AS characterName,"
-                          " srvCharacter.balance, skillPoints, srvEntity.typeID,"
-                          " gender, bloodlineID, srvCharacter.corporationID,"
-                          " allianceID, ship.typeID as shipTypeID,"
-                          " srvCharacter.stationID, solarSystemID, security"
-                          " FROM srvCharacter "
-                          "    LEFT JOIN srvEntity ON characterID = itemID"
-                          "    LEFT JOIN chrAncestries USING(ancestryID)"
-                          "    LEFT JOIN srvCorporation USING(corporationID)"
-                          "    LEFT JOIN srvEntity AS ship ON ship.itemID = shipID"
-                          "    LEFT JOIN mapSolarSystems USING(solarSystemID)"
-                          " WHERE accountID=%u", accountID))
+    if (!DBcore::RunQuery(res, "SELECT\n"
+            "    accountName AS userName,\n"
+            "    %lu AS creationDate,\n"
+            "    3 AS characterSlots,\n"
+            "    CAST(3 AS CHAR) AS maxCharacterSlots,\n"
+            "    %lu AS subscriptionEndTime\n"
+            "FROM `srvAccount`\n"
+            "WHERE accountID = %u", (Win32TimeNow() - Win32Time_Month), (Win32TimeNow() + Win32Time_Year), accountID))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
-    int chars = res.GetRowCount();
-    while (chars-- > 0)
-    {
-    }
     DBResultRow row;
-    res.GetRow(row);
-    uint32 charID = row.GetUInt(0);
-    std::string charName = row.GetText(1);
-    double balance = row.GetDouble(2);
-    int32 skillPoints = row.GetInt(3);
-    uint32 typeID = row.GetUInt(4);
-    bool gender = (row.GetInt(5) == 1) ? true : false;
-    int32 bloodlineID = row.GetInt(6);
-    int32 corporationID = row.GetInt(7);
-    int32 allianceID = row.GetInt(8);
-    int32 shipTypeID = row.GetInt(9);
-    int32 stationID = row.GetInt(10);
-    int32 solarSystemID = row.GetInt(11);
-    double security = row.GetDouble(12);
+    if(!res.GetRow(row))
+    {
+        codelog(SERVICE__ERROR, "Failed to get row for userDetails");
+        return NULL;
+    }
+    rtn->SetItem(0, new_tuple(DBRowToKeyVal(row)));
 
-    // characterDetails
-    PyDict *characterDetails = new PyDict();
-    characterDetails->SetItem("characterID", new PyInt(charID));
-    characterDetails->SetItem("logoffDate", new PyLong(130954612960000000));
-    characterDetails->SetItem("skillPoints", new PyInt(skillPoints));
-    characterDetails->SetItem("paperdollState", new PyInt(1));
-    characterDetails->SetItem("characterName", new PyWString(charName));
-    characterDetails->SetItem("typeID", new PyInt(typeID));
-    characterDetails->SetItem("gender", new PyBool(gender));
-    characterDetails->SetItem("bloodlineID", new PyInt(bloodlineID));
-    characterDetails->SetItem("deletePrepareDateTime", new PyNone());
-    characterDetails->SetItem("balance", new PyLong(balance));
-    characterDetails->SetItem("balanceChange", new PyInt(0));
-    characterDetails->SetItem("corporationID", new PyInt(corporationID));
-    characterDetails->SetItem("allianceID", (allianceID == 0) ? (PyRep *)new PyNone() : (PyRep *)new PyInt(allianceID));
-    characterDetails->SetItem("unreadMailCount", new PyInt(0));
-    characterDetails->SetItem("unprocessedNotifications", new PyInt(0));
-    characterDetails->SetItem("shipTypeID", new PyInt(shipTypeID));
-    characterDetails->SetItem("solarSystemID", new PyInt(solarSystemID));
-    characterDetails->SetItem("stationID", (stationID == 0) ? (PyRep *)new PyNone() : (PyRep *)new PyInt(stationID));
-    characterDetails->SetItem("locationSecurity", new PyFloat(security));
-    characterDetails->SetItem("petitionMessage", new PyBool(false));
-    characterDetails->SetItem("finishedSkills", new PyInt(0));
-    characterDetails->SetItem("skillsInQueue", new PyInt(0));
-    characterDetails->SetItem("skillTypeID", new PyNone());
-    characterDetails->SetItem("toLevel", new PyNone());
-    characterDetails->SetItem("trainingStartTime", new PyNone());
-    characterDetails->SetItem("trainingEndTime", new PyNone());
-    characterDetails->SetItem("queueEndTime", new PyNone());
-    characterDetails->SetItem("finishSP", new PyNone());
-    characterDetails->SetItem("trainedSP", new PyNone());
-    characterDetails->SetItem("fromSP", new PyNone());
+    // trainingEnds
+    rtn->SetItem(1, new PyList(0));
 
-    PyObject *characterDetails_obj = new PyObject("util.KeyVal", characterDetails);
-    rtn->SetItem(2, new_tuple(characterDetails_obj));
+    res.Reset();
+    if (!DBcore::RunQuery(res,"SELECT \n"
+            "    characterID,\n"
+            "    srvEntity.itemName AS characterName,\n"
+            "    srvCharacter.balance,\n"
+            "    skillPoints,\n"
+            "    srvEntity.typeID,\n"
+            "    gender,\n"
+            "    bloodlineID,\n"
+            "    corporationID,\n"
+            "    NULLIF(allianceID, 0) AS allianceID,\n"                       // Can be NULL // DB needs updating to allow NULL
+            "    ship.typeID AS shipTypeID,\n"
+            "    srvCharacter.stationID,\n"                                    // NULL if in space
+            "    solarSystemID,\n"
+            "    security AS locationSecurity,\n"
+            "    NULLIF(deletePrepareDateTime, 0) AS deletePrepareDateTime,\n" // Can be NULL // DB Needs updating to allow NULL
+            "    NULLIF(skillQueueEndTime, 0) AS queueEndTime,\n"              //skillQueueEndTime AS queueEndTime,\n" // Can be NULL // DB needs updating to allow NULL
+            "    0 AS logoffDate,\n"                                           // All of these values need to be pulled from the DB in the future
+            "    0 AS paperdollState,\n"
+            "    0 AS balanceChange,\n"            // 0.0 never NULL
+            "    0 AS unreadMailCount,\n"          // 0 never NULL
+            "    0 AS unprocessedNotifications,\n" // 0 never NULL
+            "    0 AS petitionMessage,\n"          // Bool never NULL
+            "    0 AS finishedSkills,\n"           // 0 never NULL
+            "    0 AS skillsInQueue,\n"            // 0 never NULL
+            "    NULL AS skillTypeID,\n"           // Can be NULL, Null if no skill in training
+            "    NULL AS toLevel,\n"               // Can be NULL, ^
+            "    NULL AS trainingStartTime,\n"     // Can be NULL, ^
+            "    NULL AS trainingEndTime,\n"       // Can be NULL, ^
+            "    NULL AS finishSP,\n"              // Can be NULL, ^
+            "    NULL AS trainedSP,\n"             // Can be NULL, ^
+            "    NULL AS fromSP\n"                 // Can be NULL, ^
+            "FROM `srvCharacter`\n"
+            "    LEFT JOIN srvEntity ON characterID = itemID\n"
+            "    LEFT JOIN chrAncestries USING(ancestryID)\n"
+            "    LEFT JOIN srvCorporation USING(corporationID)\n"
+            "    LEFT JOIN srvEntity AS ship ON ship.itemID = shipID\n"
+            "    LEFT JOIN mapSolarSystems USING(solarSystemID)\n"
+            "WHERE accountID = %u", accountID))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
+    }
+    rtn->SetItem(2, DBResultToTupleKeyVal(res));
     return rtn;
 }

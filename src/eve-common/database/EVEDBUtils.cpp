@@ -576,3 +576,16 @@ PyPackedRow *DBRowToPackedRow( DBResultRow &row )
 
     return CreatePackedRow( row, header );
 }
+
+PyTuple *DBResultToTupleKeyVal(DBQueryResult &result)
+{
+    PyTuple *rtn = new PyTuple(result.GetRowCount());
+    DBResultRow row;
+    uint32 index = 0;
+    while(result.GetRow(row))
+    {
+        rtn->SetItem(index, DBRowToKeyVal(row));
+        index++;
+    }
+    return rtn;
+}
