@@ -438,13 +438,13 @@ PyResult CharUnboundMgrService::Handle_GetCharacterSelectionData(PyCallArgs &cal
             "    gender,\n"
             "    bloodlineID,\n"
             "    corporationID,\n"
-            "    NULLIF(allianceID, 0) AS allianceID,\n"                       // Can be NULL // DB needs updating to allow NULL
+            "    NULLIF(allianceID, 0) AS allianceID,\n"
             "    ship.typeID AS shipTypeID,\n"
             "    srvCharacter.stationID,\n"                                    // NULL if in space
             "    solarSystemID,\n"
             "    security AS locationSecurity,\n"
-            "    NULLIF(deletePrepareDateTime, 0) AS deletePrepareDateTime,\n" // Can be NULL // DB Needs updating to allow NULL
-            "    NULLIF(skillQueueEndTime, 0) AS queueEndTime,\n"              //skillQueueEndTime AS queueEndTime,\n" // Can be NULL // DB needs updating to allow NULL
+            "    NULLIF(deletePrepareDateTime, 0) AS deletePrepareDateTime,\n"
+            "    NULLIF(skillQueueEndTime, 0) AS queueEndTime,\n"
             "    0 AS logoffDate,\n"                                           // All of these values need to be pulled from the DB in the future
             "    0 AS paperdollState,\n"
             "    0 AS balanceChange,\n"            // 0.0 never NULL
