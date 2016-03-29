@@ -765,10 +765,18 @@ void Client::_SendSessionChange()
 
     SessionChangeNotification scn;
     scn.changes = new PyDict;
-
+    if(m_char) {
+        mSession.SetInt("shipid", GetShipID());
+        mSession.SetInt("stationid2", GetLocationID());
+        mSession.SetInt("worldspaceid", GetLocationID());
+        mSession.SetInt("stationid", GetLocationID());
+        mSession.SetInt("locationid", GetLocationID());
+        mSession.SetInt("hqID", GetLocationID());
+    }
     mSession.EncodeChanges( scn.changes );
     if( scn.changes->empty() )
         return;
+    scn.changes->Dump(stdout, "SCN:CHANGES: ");
 
     SysLog::Log("Client","Session updated, sending session change");
     scn.changes->Dump(CLIENT__SESSION, "  Changes: ");
@@ -1813,7 +1821,8 @@ bool Client::Handle_CallReq( PyPacket* packet, PyCallStream& req )
         SysLog::Error("Client","BeanCount");
     else
         //this should be Log::Debug, but because of the number of messages, I left it as .Log for readability, and ease of finding other debug messages
-        SysLog::Log("Server", "%s call made to %s",req.method.c_str(),packet->dest.service.c_str());
+        //SysLog::Log("Server", "%s call made to %s",req.method.c_str(),packet->dest.service.c_str());
+        SysLog::Log("Func Call Disp", "Call made to svc: '%s', func: '%s'", packet->dest.service.c_str(), req.method.c_str());
 
     //build arguments
     PyCallArgs args( this, req.arg_tuple, req.arg_dict );
