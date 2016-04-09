@@ -39,9 +39,9 @@
 
 static const uint32 PING_INTERVAL_US = 60000;
 
-Client::Client( EVETCPConnection** con)
+Client::Client(EVETCPConnection** con, EVEServerConfig::EVEConfigNet &net)
 : DynamicSystemEntity(NULL),
-  EVEClientSession( con ),
+EVEClientSession(con),
   m_pingTimer(PING_INTERVAL_US),
   m_system(NULL),
 //  m_destinyTimer(1000, true), //accurate timing is essential
@@ -52,7 +52,8 @@ Client::Client( EVETCPConnection** con)
   m_timeEndTrain(0),
   m_destinyEventQueue( new PyList ),
   m_destinyUpdateQueue( new PyList ),
-  m_nextNotifySequence(1)
+m_nextNotifySequence(1),
+m_networkConfig(net)
 //  m_nextDestinyUpdate(46751)
 {
     m_moveTimer.Disable();
@@ -66,7 +67,7 @@ Client::Client( EVETCPConnection** con)
     bKennyfied = false;     // by default, we do NOT want chat messages kennyfied, LOL
 
     // Start handshake
-    Reset();
+    reset();
 }
 
 Client::~Client() {
@@ -112,7 +113,7 @@ Client::~Client() {
 
 bool Client::ProcessNet()
 {
-    if( GetState() != TCPConnection::STATE_CONNECTED )
+    if(getState() != TCPConnection::STATE_CONNECTED)
         return false;
 
     if(m_pingTimer.Check()) {
@@ -121,7 +122,8 @@ bool Client::ProcessNet()
     }
 
     PyPacket *p;
-    while((p = PopPacket())) {
+    while((p = popPacket()))
+    {
         _log(CLIENT__IN_ALL, "Received packet:");
         PyLogDumpVisitor dumper(CLIENT__IN_ALL, CLIENT__IN_ALL);
         p->Dump(CLIENT__IN_ALL, dumper);
@@ -730,7 +732,7 @@ void Client::_SendCallReturn( const PyAddress& source, uint64 callID, PyRep** re
         p->named_payload->SetItemString( "channel", new PyString( channel ) );
     }
 
-    FastQueuePacket( &p );
+    fastQueuePacket(&p);
 }
 
 void Client::_SendException( const PyAddress& source, uint64 callID, MACHONETMSG_TYPE in_response_to, MACHONETERR_TYPE exception_type, PyRep** payload )
@@ -755,7 +757,7 @@ void Client::_SendException( const PyAddress& source, uint64 callID, MACHONETMSG
     *payload = NULL;    //consumed
 
     p->payload = e.Encode();
-    FastQueuePacket(&p);
+    fastQueuePacket(&p);
 }
 
 void Client::_SendSessionChange()
@@ -804,7 +806,7 @@ void Client::_SendSessionChange()
 
 
 
-    FastQueuePacket( &p );
+    fastQueuePacket(&p);
 }
 
 void Client::_SendPingRequest()
@@ -828,7 +830,7 @@ void Client::_SendPingRequest()
     ping_req->payload = new_tuple( new PyList() ); //times
     ping_req->named_payload = new PyDict();
 
-    FastQueuePacket(&ping_req);
+    fastQueuePacket(&ping_req);
 }
 
 void Client::_SendPingResponse( const PyAddress& source, uint64 callID )
@@ -899,7 +901,7 @@ void Client::_SendPingResponse( const PyAddress& source, uint64 callID )
     ret->payload->SetItem( 0, pingList );
 
     // Don't clone so it eats the ret object upon sending.
-    FastQueuePacket( &ret );
+    fastQueuePacket(&ret);
 }
 
 //these are specialized Queue functions when our caller can
@@ -1007,7 +1009,7 @@ void Client::SendNotification(const PyAddress &dest, EVENotificationStream &noti
         p->Dump(CLIENT__NOTIFY_REP, dumper);
     }
 
-    FastQueuePacket(&p);
+    fastQueuePacket(&p);
 }
 
 PyDict *Client::MakeSlimItem() const {
@@ -1517,7 +1519,7 @@ void Client::OnCharNowInStation()
 void Client::DisconnectClient()
 {
     //initiate closing the client TCP Connection
-    CloseClientConnection();
+    closeClientConnection();
 }
 void Client::BanClient()
 {
@@ -1594,7 +1596,7 @@ bool Client::_VerifyCrypto( CryptoRequestPacket& cr )
 
         //send out accept response
         PyRep* rsp = new PyString( "OK CC" );
-        mNet->QueueRep( rsp );
+                m_tcpConnecton->QueueRep(rsp);
         PyDecRef( rsp );
 
         return true;
@@ -1668,9 +1670,9 @@ bool Client::_VerifyLogin( CryptoChallengePacket& ccp )
         Client* client = EntityList::FindAccount(account_info.id);
         if (client)
             client->DisconnectClient();
-    }
+        }
 
-    mNet->QueueRep( rsp );
+    m_tcpConnecton->QueueRep(rsp);
     PyDecRef( rsp );
 
     SysLog::Log("Client","successful");
@@ -1712,11 +1714,11 @@ bool Client::_VerifyLogin( CryptoChallengePacket& ccp )
     server_shake.boot_region = EVEProjectRegion;
 
     rsp = server_shake.Encode();
-    mNet->QueueRep( rsp );
+            m_tcpConnecton->QueueRep(rsp);
     PyDecRef( rsp );
 
     // Setup session, but don't send the change yet.
-    mSession.SetString( "address", EVEClientSession::GetAddress().c_str() );
+            mSession.SetString("address", EVEClientSession::getAddress().c_str());
     mSession.SetString( "languageID", ccp.user_languageid.c_str() );
 
     //user type 1 is normal user, type 23 is a trial account user.
@@ -1729,7 +1731,7 @@ bool Client::_VerifyLogin( CryptoChallengePacket& ccp )
 error_login_auth_failed:
 
     GPSTransportClosed* except = new GPSTransportClosed( transport_closed_msg );
-    mNet->QueueRep( except );
+            m_tcpConnecton->QueueRep(except);
     PyDecRef( except );
 
     return false;
@@ -1756,7 +1758,7 @@ bool Client::_VerifyFuncResult( CryptoHandshakeResult& result )
 
 
     PyRep* r = ack.Encode();
-    mNet->QueueRep( r );
+            m_tcpConnecton->QueueRep(r);
     PyDecRef( r );
 
     // Send out the session change
