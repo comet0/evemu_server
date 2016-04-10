@@ -1695,7 +1695,7 @@ bool Client::_VerifyLogin( CryptoChallengePacket& ccp )
     server_shake.challenge_responsehash = "55087";
 
     // begin config_vals
-    server_shake.imageserverurl = ImageServer::url(); // Image server used to download images
+            server_shake.imageserverurl = ImageServer::getURL(m_networkConfig); // Image server used to download images
     server_shake.serverInfo = "EVEMU,127.0.0.1,127.0.0.1:8080,0"; // serverName, serverIP, espIP:espPort, isLive
     server_shake.publicCrestUrl = "";
     server_shake.bugReporting_BugReportServer = "";
