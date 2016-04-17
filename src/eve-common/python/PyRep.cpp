@@ -1180,3 +1180,10 @@ PyTuple * new_tuple( PyRep* arg1 )
     res->SetItem(0, arg1);
     return res;
 }
+
+PyDict *new_dict(PyRep *arg1, PyRep *arg2)
+{
+    PyDict *rtn = new PyDict();
+    rtn->SetItem(arg1, arg2);
+    return rtn;
+}
