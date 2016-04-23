@@ -1181,6 +1181,25 @@ PyTuple * new_tuple( PyRep* arg1 )
     return res;
 }
 
+PyTuple * new_tuple( PyRep* arg1, PyRep* arg2, PyRep* arg3 )
+{
+    PyTuple * res = new PyTuple(3);
+    res->SetItem(0, arg1);
+    res->SetItem(1, arg2);
+    res->SetItem(2, arg3);
+    return res;
+}
+
+PyTuple * new_tuple( PyRep* arg1, PyRep* arg2, PyRep* arg3, PyRep* arg4 )
+{
+    PyTuple * res = new PyTuple(4);
+    res->SetItem(0, arg1);
+    res->SetItem(1, arg2);
+    res->SetItem(2, arg3);
+    res->SetItem(3, arg4);
+    return res;
+}
+
 PyDict *new_dict(PyRep *arg1, PyRep *arg2)
 {
     PyDict *rtn = new PyDict();

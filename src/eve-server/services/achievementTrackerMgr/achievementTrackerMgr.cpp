@@ -20,42 +20,29 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Cometo
 */
 
-#ifndef __PYBOUNDOBJECT_H_INCL__
-#define __PYBOUNDOBJECT_H_INCL__
 
-#include "PyCallable.h"
+#include "eve-server.h"
+#include "achievementTrackerMgr.h"
+#include "PyBoundObject.h"
+#include "PyServiceCD.h"
+#include "PyServiceMgr.h"
 
-class PyBoundObject
-: public PyCallable {
-public:
-    PyBoundObject(CallDispatcher *disp);
-    virtual ~PyBoundObject();
+PyCallable_Make_InnerDispatcher(AchievementTrackerMgrService)
 
-    virtual void Release() = 0;
+AchievementTrackerMgrService::AchievementTrackerMgrService()
+: PyService("achievementTrackerMgr", new Dispatcher(this))
+{
+    PyCallable_REG_CALL(AchievementTrackerMgrService, GetCompletedAchievementsAndClientEventCount)
+}
 
-    uint32 nodeID() const { return(m_nodeID); }
-    uint32 bindID() const { return(m_bindID); }
+AchievementTrackerMgrService::~AchievementTrackerMgrService() {
+}
 
-    //returns string "N=(nodeID):(bindID)"
-    std::string GetBindStr() const;
-    std::string GetBoundObjectClassStr() const { return m_strBoundObjectName; };
-    const char *GetName() const { return(m_strBoundObjectName.c_str()); }
+PyResult AchievementTrackerMgrService::Handle_GetCompletedAchievementsAndClientEventCount(PyCallArgs &call) {
+    SysLog::Log("AchievementTrackerMgrService", "Called GetCompletedAchievementsAndClientEventCount stub.");
 
-    //just to say who we are:
-    virtual PyResult Call(const std::string &method, PyCallArgs &args);
-
-protected:
-    friend class PyServiceMgr;    //for access to _SetNodeBindID only.
-    void _SetNodeBindID(uint32 nodeID, uint32 bindID) { m_nodeID = nodeID; m_bindID = bindID; }
-
-    std::string m_strBoundObjectName;
-
-private:
-    uint32 m_nodeID;
-    uint32 m_bindID;
-};
-
-#endif
+    return NULL;
+}

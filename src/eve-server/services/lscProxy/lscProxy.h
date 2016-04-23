@@ -20,42 +20,27 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Cometo
 */
 
-#ifndef __PYBOUNDOBJECT_H_INCL__
-#define __PYBOUNDOBJECT_H_INCL__
+#ifndef __EVEMOO_SERVICES_LSCPROXY_H_INCL__
+#define __EVEMOO_SERVICES_LSCPROXY_H_INCL__
 
-#include "PyCallable.h"
+#include "PyService.h"
 
-class PyBoundObject
-: public PyCallable {
+class PyRep;
+
+class LSCProxyService: public PyService
+{
 public:
-    PyBoundObject(CallDispatcher *disp);
-    virtual ~PyBoundObject();
+    LSCProxyService();
+    virtual ~LSCProxyService();
 
-    virtual void Release() = 0;
-
-    uint32 nodeID() const { return(m_nodeID); }
-    uint32 bindID() const { return(m_bindID); }
-
-    //returns string "N=(nodeID):(bindID)"
-    std::string GetBindStr() const;
-    std::string GetBoundObjectClassStr() const { return m_strBoundObjectName; };
-    const char *GetName() const { return(m_strBoundObjectName.c_str()); }
-
-    //just to say who we are:
-    virtual PyResult Call(const std::string &method, PyCallArgs &args);
+    PyCallable_DECL_CALL(JoinChannels)
 
 protected:
-    friend class PyServiceMgr;    //for access to _SetNodeBindID only.
-    void _SetNodeBindID(uint32 nodeID, uint32 bindID) { m_nodeID = nodeID; m_bindID = bindID; }
-
-    std::string m_strBoundObjectName;
-
-private:
-    uint32 m_nodeID;
-    uint32 m_bindID;
+    class Dispatcher;
+    
 };
 
 #endif

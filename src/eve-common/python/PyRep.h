@@ -1026,6 +1026,8 @@ PyTuple * new_tuple(const char* arg1, const char* arg2, PyTuple* arg3);
 PyTuple * new_tuple(const char* arg1, PyRep* arg2, PyRep* arg3);
 PyTuple * new_tuple(PyRep* arg1);
 PyTuple * new_tuple(PyRep* arg1, PyRep* arg2);
+PyTuple * new_tuple(PyRep* arg1, PyRep* arg2, PyRep* arg3);
+PyTuple * new_tuple(PyRep* arg1, PyRep* arg2, PyRep* arg3, PyRep* arg4);
 
 PyDict *new_dict(PyRep *arg1, PyRep *arg2);
 

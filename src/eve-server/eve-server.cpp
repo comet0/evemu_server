@@ -152,6 +152,10 @@ trapfpe()
 #include "system/KeeperService.h"
 #include "system/ScenarioService.h"
 #include "system/WrecksAndLoot.h"
+
+#include "services/crimewatch/crimewatch.h"
+#include "services/lscProxy/lscProxy.h"
+#include "services/achievementTrackerMgr/achievementTrackerMgr.h"
 // service manager
 #include "PyServiceMgr.h"
 
@@ -236,7 +240,7 @@ int main( int argc, char* argv[] )
         std::cout << std::endl << "Exiting";
         return 1;
     }
-    else if (DBcore::Connected)
+    else if (DBcore::GetStatus() == DBcore::Connected)
     {
         SysLog::Success("Server Init", "Connected to database successfully");
     }
@@ -298,6 +302,7 @@ int main( int argc, char* argv[] )
     // Please keep the services list clean so it's easier to find something
 
     PyServiceMgr::RegisterService(new AccountService());
+    PyServiceMgr::RegisterService(new AchievementTrackerMgrService());
     PyServiceMgr::RegisterService(new AgentMgrService());
     PyServiceMgr::RegisterService(new AggressionMgrService());
     PyServiceMgr::RegisterService(new AlertService());
@@ -321,6 +326,7 @@ int main( int argc, char* argv[] )
     PyServiceMgr::RegisterService(new CorpStationMgrService());
     PyServiceMgr::RegisterService(new ContractMgrService());
     PyServiceMgr::RegisterService(new ContractProxyService());
+    PyServiceMgr::RegisterService(new CrimewatchService());
     PyServiceMgr::RegisterService(new DevToolsProviderService());
     PyServiceMgr::RegisterService(new DogmaIMService());
     PyServiceMgr::RegisterService(new DogmaService());
@@ -342,6 +348,7 @@ int main( int argc, char* argv[] )
     PyServiceMgr::RegisterService(new LookupService());
     PyServiceMgr::RegisterService(new LPService());
     PyServiceMgr::RegisterService(PyServiceMgr::lsc_service = new LSCService(&command_dispatcher));
+    PyServiceMgr::RegisterService(new LSCProxyService());
     PyServiceMgr::RegisterService(new MailMgrService());
     PyServiceMgr::RegisterService(new MailingListMgrService());
     PyServiceMgr::RegisterService(new MapService());

@@ -1,0 +1,702 @@
+diff --git a/src/eve-common/python/PyRep.cpp b/src/eve-common/python/PyRep.cpp
+index 74fd65c..2cdac3e 100644
+--- a/src/eve-common/python/PyRep.cpp
++++ b/src/eve-common/python/PyRep.cpp
+@@ -1181,6 +1181,25 @@ PyTuple * new_tuple( PyRep* arg1 )
+     return res;
+ }
+ 
++PyTuple * new_tuple( PyRep* arg1, PyRep* arg2, PyRep* arg3 )
++{
++    PyTuple * res = new PyTuple(3);
++    res->SetItem(0, arg1);
++    res->SetItem(1, arg2);
++    res->SetItem(2, arg3);
++    return res;
++}
++
++PyTuple * new_tuple( PyRep* arg1, PyRep* arg2, PyRep* arg3, PyRep* arg4 )
++{
++    PyTuple * res = new PyTuple(4);
++    res->SetItem(0, arg1);
++    res->SetItem(1, arg2);
++    res->SetItem(2, arg3);
++    res->SetItem(3, arg4);
++    return res;
++}
++
+ PyDict *new_dict(PyRep *arg1, PyRep *arg2)
+ {
+     PyDict *rtn = new PyDict();
+diff --git a/src/eve-common/python/PyRep.h b/src/eve-common/python/PyRep.h
+index 379b349..249e067 100644
+--- a/src/eve-common/python/PyRep.h
++++ b/src/eve-common/python/PyRep.h
+@@ -1026,6 +1026,8 @@ PyTuple * new_tuple(const char* arg1, const char* arg2, PyTuple* arg3);
+ PyTuple * new_tuple(const char* arg1, PyRep* arg2, PyRep* arg3);
+ PyTuple * new_tuple(PyRep* arg1);
+ PyTuple * new_tuple(PyRep* arg1, PyRep* arg2);
++PyTuple * new_tuple(PyRep* arg1, PyRep* arg2, PyRep* arg3);
++PyTuple * new_tuple(PyRep* arg1, PyRep* arg2, PyRep* arg3, PyRep* arg4);
+ 
+ PyDict *new_dict(PyRep *arg1, PyRep *arg2);
+ 
+diff --git a/src/eve-server/CMakeLists.txt b/src/eve-server/CMakeLists.txt
+index 35ffe8e..42a2432 100644
+--- a/src/eve-server/CMakeLists.txt
++++ b/src/eve-server/CMakeLists.txt
+@@ -462,6 +462,16 @@ SET( system_SOURCE
+      "${TARGET_SOURCE_DIR}/system/SystemManager.cpp"
+      "${TARGET_SOURCE_DIR}/system/WrecksAndLoot.cpp" )
+ 
++SET(services_INCLUDE
++     "${TARGET_INCLUDE_DIR}/services/crimewatch/crimewatch.h"
++     "${TARGET_INCLUDE_DIR}/services/lscProxy/lscProxy.h"
++     "${TARGET_INCLUDE_DIR}/services/achievementTrackerMgr/achievementTrackerMgr.h"
++     )
++SET(services_SOURCE
++     "${TARGET_SOURCE_DIR}/services/crimewatch/crimewatch.cpp"
++     "${TARGET_SOURCE_DIR}/services/lscProxy/lscProxy.cpp"
++     "${TARGET_SOURCE_DIR}/services/achievementTrackerMgr/achievementTrackerMgr.cpp"
++     )
+ ########################
+ # Setup the executable #
+ ########################
+@@ -491,34 +501,37 @@ SOURCE_GROUP( "src\\ship\\modules" FILES ${ship_modules_SOURCE} )
+ SOURCE_GROUP( "src\\standing"      FILES ${standing_SOURCE} )
+ SOURCE_GROUP( "src\\station"       FILES ${station_SOURCE} )
+ SOURCE_GROUP( "src\\system"        FILES ${system_SOURCE} )
++SOURCE_GROUP( "src\\system"        FILES ${services_SOURCE} )
+ 
+ ADD_EXECUTABLE( "${TARGET_NAME}"
+-${SOURCE}
+-${account_SOURCE}
+-${admin_SOURCE}
+-${cache_SOURCE}
+-${character_SOURCE}
+-${chat_SOURCE}
+-${config_SOURCE}
+-${corporation_SOURCE}
+-${dogmaim_SOURCE}
+-${fleet_SOURCE}
+-${imageserver_SOURCE}
+-${inventory_SOURCE}
+-${mail_SOURCE}
+-${manufacturing_SOURCE}
+-${map_SOURCE}
+-${market_SOURCE}
+-${mining_SOURCE}
+-${missions_SOURCE}
+-${npc_SOURCE}
+-${pos_SOURCE}
+-${search_SOURCE}
+-${ship_SOURCE}
+-${ship_modules_SOURCE}
+-${standing_SOURCE}
+-${station_SOURCE}
+-${system_SOURCE} )
++     ${SOURCE}
++     ${account_SOURCE}
++     ${admin_SOURCE}
++     ${cache_SOURCE}
++     ${character_SOURCE}
++     ${chat_SOURCE}
++     ${config_SOURCE}
++     ${corporation_SOURCE}
++     ${dogmaim_SOURCE}
++     ${fleet_SOURCE}
++     ${imageserver_SOURCE}
++     ${inventory_SOURCE}
++     ${mail_SOURCE}
++     ${manufacturing_SOURCE}
++     ${map_SOURCE}
++     ${market_SOURCE}
++     ${mining_SOURCE}
++     ${missions_SOURCE}
++     ${npc_SOURCE}
++     ${pos_SOURCE}
++     ${search_SOURCE}
++     ${ship_SOURCE}
++     ${ship_modules_SOURCE}
++     ${standing_SOURCE}
++     ${station_SOURCE}
++     ${system_SOURCE} 
++     ${services_SOURCE}
++)
+ 
+ TARGET_BUILD_PCH( "${TARGET_NAME}"
+                   "${TARGET_INCLUDE_DIR}/eve-server.h"
+diff --git a/src/eve-server/Client.cpp b/src/eve-server/Client.cpp
+index c1ed0aa..eb90032 100644
+--- a/src/eve-server/Client.cpp
++++ b/src/eve-server/Client.cpp
+@@ -614,8 +614,7 @@ void Client::_UpdateSession( const CharacterConstRef& character )
+     mSession.SetLong( "rolesAtHQ", character->rolesAtHQ() );
+     mSession.SetLong( "rolesAtOther", character->rolesAtOther() );
+ 
+-    if (IsInSpace())
+-        mSession.SetInt("shipid", GetShipID());
++    mSession.SetInt("shipid", GetShipID());
+ }
+ 
+ 
+@@ -703,8 +702,8 @@ void Client::_UpdateSession2( uint32 characterID )
+     m_shipId = shipID;
+     if( m_char )
+         m_char->SetActiveShip(m_shipId);
+-    if (IsInSpace())
+-        mSession.SetInt( "shipid", shipID );
++
++    mSession.SetInt( "shipid", shipID );
+ }
+ 
+ void Client::_SendCallReturn( const PyAddress& source, uint64 callID, PyRep** return_value, const char* channel )
+@@ -1695,7 +1694,7 @@ bool Client::_VerifyLogin( CryptoChallengePacket& ccp )
+     server_shake.challenge_responsehash = "55087";
+ 
+     // begin config_vals
+-            server_shake.imageserverurl = ImageServer::getURL(m_networkConfig); // Image server used to download images
++    server_shake.imageserverurl = ImageServer::getURL(m_networkConfig); // Image server used to download images
+     server_shake.serverInfo = "EVEMU,127.0.0.1,127.0.0.1:8080,0"; // serverName, serverIP, espIP:espPort, isLive
+     server_shake.publicCrestUrl = "";
+     server_shake.bugReporting_BugReportServer = "";
+@@ -1802,7 +1801,7 @@ bool Client::Handle_CallReq( PyPacket* packet, PyCallStream& req )
+         dest = PyServiceMgr::LookupService(packet->dest.service);
+         if( dest == NULL )
+         {
+-            SysLog::Error("Client","Unable to find service to handle call to: %s", packet->dest.service.c_str());
++            SysLog::Error("Client","User '%u' requested unknown svc '%s'", GetAccountID(), packet->dest.service.c_str());
+             packet->dest.Dump(CLIENT__ERROR, "    ");
+ 
+             throw PyException( new PyObjectEx_Type1(new PyToken("eveexceptions.ServiceNotFound"), new_tuple(packet->dest.service.c_str()), new_dict(new PyString("service"), new PyString(packet->dest.service.c_str()))));
+@@ -1814,7 +1813,8 @@ bool Client::Handle_CallReq( PyPacket* packet, PyCallStream& req )
+         SysLog::Error("Client","BeanCount");
+     else
+         //this should be Log::Debug, but because of the number of messages, I left it as .Log for readability, and ease of finding other debug messages
+-        SysLog::Log("Server", "%s call made to %s",req.method.c_str(),packet->dest.service.c_str());
++        //SysLog::Log("Server", "%s call made to %s",req.method.c_str(),packet->dest.service.c_str());
++        SysLog::Log("Client", "User '%u' requested svc '%s' function '%s'", GetAccountID(), packet->dest.service.c_str(), req.method.c_str());
+ 
+     //build arguments
+     PyCallArgs args( this, req.arg_tuple, req.arg_dict );
+diff --git a/src/eve-server/PyBoundObject.h b/src/eve-server/PyBoundObject.h
+index 6c94d72..4baaaf0 100644
+--- a/src/eve-server/PyBoundObject.h
++++ b/src/eve-server/PyBoundObject.h
+@@ -42,6 +42,7 @@ public:
+     //returns string "N=(nodeID):(bindID)"
+     std::string GetBindStr() const;
+     std::string GetBoundObjectClassStr() const { return m_strBoundObjectName; };
++    const char *GetName() const { return(m_strBoundObjectName.c_str()); }
+ 
+     //just to say who we are:
+     virtual PyResult Call(const std::string &method, PyCallArgs &args);
+diff --git a/src/eve-server/PyServiceCD.h b/src/eve-server/PyServiceCD.h
+index f829c4d..d93acf2 100644
+--- a/src/eve-server/PyServiceCD.h
++++ b/src/eve-server/PyServiceCD.h
+@@ -57,7 +57,9 @@ public:
+         mapitr res;
+         res = m_serviceCalls.find(method_name);
+         if(res == m_serviceCalls.end()) {
+-            SysLog::Error("Server","Unknown call to '%s' by '%s'", method_name.c_str(), call.client->GetName());
++//            SysLog::Error("Server","Unknown call to '%s' by '%s'", method_name.c_str(), call.client->GetName());
++//            SysLog::Error("Call Dispatcher", "User '%u' requested svc '%s' unknown function '%s'", call.client->GetAccountID(), m_parent->GetName(), method_name.c_str());//"Unknown call to '%s' by '%s'", method_name.c_str(), call.client->GetName());
++            SysLog::Error("Call Dispatcher", "TODO: Create stub for svc '%s' and function '%s'", m_parent->GetName(), method_name.c_str());
+             return NULL;
+         }
+ 
+diff --git a/src/eve-server/PyServiceMgr.cpp b/src/eve-server/PyServiceMgr.cpp
+index 60ce23f..9c86f6e 100644
+--- a/src/eve-server/PyServiceMgr.cpp
++++ b/src/eve-server/PyServiceMgr.cpp
+@@ -85,7 +85,7 @@ PyService *PyServiceMgr::LookupService(const std::string &name) {
+         {
+             //this is added here so you know which server opens the call
+             //that if it gets loaded
+-            SysLog::Debug("ServiceOfIterest", (*cur)->GetName());
++            //SysLog::Debug("ServiceOfIterest", (*cur)->GetName());
+             return(*cur);
+         }
+     }
+diff --git a/src/eve-server/account/TutorialService.cpp b/src/eve-server/account/TutorialService.cpp
+index a675f76..91b0ecf 100644
+--- a/src/eve-server/account/TutorialService.cpp
++++ b/src/eve-server/account/TutorialService.cpp
+@@ -100,14 +100,14 @@ PyResult TutorialService::Handle_GetCategories(PyCallArgs &call)
+ 
+ PyResult TutorialService::Handle_GetContextHelp( PyCallArgs& call )
+ {
+-    SysLog::Debug( "TutorialService", "Called GetContextHelp stub." );
++    SysLog::Log( "TutorialService", "Called GetContextHelp stub." );
+ 
+     return new PyList;
+ }
+ 
+ PyResult TutorialService::Handle_GetCharacterTutorialState( PyCallArgs& call )
+ {
+-    SysLog::Debug( "TutorialService", "Called GetCharacterTutorialState stub." );
++    SysLog::Log( "TutorialService", "Called GetCharacterTutorialState stub." );
+ 
+     util_Rowset rs;
+     rs.lines = new PyList;
+@@ -122,7 +122,7 @@ PyResult TutorialService::Handle_GetCharacterTutorialState( PyCallArgs& call )
+ 
+ PyResult TutorialService::Handle_GetTutorialsAndConnections( PyCallArgs& call )
+ {
+-    SysLog::Debug( "TutorialService", "Called GetTutorialsAndConnections stub." );
++    SysLog::Log( "TutorialService", "Called GetTutorialsAndConnections stub." );
+ 
+     return new PyNone;
+ }
+diff --git a/src/eve-server/account/UserService.cpp b/src/eve-server/account/UserService.cpp
+index a1126a5..802d3b8 100644
+--- a/src/eve-server/account/UserService.cpp
++++ b/src/eve-server/account/UserService.cpp
+@@ -45,14 +45,14 @@ PyResult UserService::Handle_GetRedeemTokens( PyCallArgs& call )
+ {
+     // takes no args
+ 
+-    SysLog::Debug( "UserService", "Called GetRedeemTokens stub." );
++    SysLog::Log( "UserService", "Called GetRedeemTokens stub." );
+ 
+     return new PyList;
+ }
+ 
+ PyResult UserService::Handle_GetCreateDate( PyCallArgs& call )
+ {
+-    SysLog::Debug( "UserService", "Called GetCreateDate stub." );
++    SysLog::Log( "UserService", "Called GetCreateDate stub." );
+ 
+     return new PyLong((long)Win32TimeNow());
+ }
+diff --git a/src/eve-server/character/CharMgrService.cpp b/src/eve-server/character/CharMgrService.cpp
+index 0aaf174..ba00917 100644
+--- a/src/eve-server/character/CharMgrService.cpp
++++ b/src/eve-server/character/CharMgrService.cpp
+@@ -56,6 +56,8 @@ CharMgrService::CharMgrService()
+     PyCallable_REG_CALL(CharMgrService, EditContact)
+     PyCallable_REG_CALL(CharMgrService, GetRecentShipKillsAndLosses)
+ 
++    PyCallable_REG_CALL(CharMgrService, GetCharacterSettings)
++
+     //these 2 are for labels in PnP window
+     PyCallable_REG_CALL(CharMgrService, GetLabels)
+     PyCallable_REG_CALL(CharMgrService, CreateLabel)
+@@ -324,3 +326,10 @@ PyResult CharMgrService::Handle_CreateLabel( PyCallArgs& call )
+     //  will add this completed code at a later date  -allan 25Jul14
+   return NULL;
+ }
++
++PyResult CharMgrService::Handle_GetCharacterSettings( PyCallArgs& call )
++{
++    SysLog::Log("CharMgrService", "Called GetCharacterSettings stub.");
++
++    return NULL;
++}
+\ No newline at end of file
+diff --git a/src/eve-server/character/CharMgrService.h b/src/eve-server/character/CharMgrService.h
+index c77670f..605423a 100644
+--- a/src/eve-server/character/CharMgrService.h
++++ b/src/eve-server/character/CharMgrService.h
+@@ -61,6 +61,8 @@ protected:
+     PyCallable_DECL_CALL(GetRecentShipKillsAndLosses)
+     PyCallable_DECL_CALL(GetLabels)
+     PyCallable_DECL_CALL(CreateLabel)
++
++    PyCallable_DECL_CALL(GetCharacterSettings)
+ };
+ 
+ #endif
+diff --git a/src/eve-server/corporation/CorpRegistryService.cpp b/src/eve-server/corporation/CorpRegistryService.cpp
+index 558edd1..5343a8f 100644
+--- a/src/eve-server/corporation/CorpRegistryService.cpp
++++ b/src/eve-server/corporation/CorpRegistryService.cpp
+@@ -73,6 +73,7 @@ public:
+         PyCallable_REG_CALL(CorpRegistryBound, SetAccountKey)
+         PyCallable_REG_CALL(CorpRegistryBound, PayoutDividend)
+         PyCallable_REG_CALL(CorpRegistryBound, GetVoteCasesByCorporation)
++        PyCallable_REG_CALL(CorpRegistryBound, GetAggressionSettings)
+     }
+     virtual ~CorpRegistryBound() { }
+     virtual void Release() {
+@@ -107,6 +108,7 @@ public:
+     PyCallable_DECL_CALL(SetAccountKey)
+     PyCallable_DECL_CALL(PayoutDividend)
+     PyCallable_DECL_CALL(GetVoteCasesByCorporation)
++    PyCallable_DECL_CALL(GetAggressionSettings)
+ 
+ 
+ 
+@@ -1023,3 +1025,9 @@ PyResult CorpRegistryBound::Handle_PayoutDividend(PyCallArgs &call) {
+ PyResult CorpRegistryBound::Handle_GetVoteCasesByCorporation(PyCallArgs &call) {
+     return NULL;
+ }
++
++PyResult CorpRegistryBound::Handle_GetAggressionSettings(PyCallArgs &call) {
++    SysLog::Log("CorpRegistryBound", "Called GetAggressionSettings stub.");
++    
++    return NULL;
++}
+\ No newline at end of file
+diff --git a/src/eve-server/dogmaim/DogmaIMService.cpp b/src/eve-server/dogmaim/DogmaIMService.cpp
+index 19a6900..dabd036 100644
+--- a/src/eve-server/dogmaim/DogmaIMService.cpp
++++ b/src/eve-server/dogmaim/DogmaIMService.cpp
+@@ -488,85 +488,171 @@ PyResult DogmaIMBound::Handle_GetAllInfo( PyCallArgs& call )
+         codelog(SERVICE__ERROR, "Unable to decode arguments from '%s'", call.client->GetName());
+         return NULL;
+     }
++    SysLog::Debug("DogmaIMBound", "GetAllInfo: getCharInfo: %s", args.arg1 ? "true" : "false");
++    SysLog::Debug("DogmaIMBound", "GetAllInfo: getShipInfo: %s", args.arg2 ? "true" : "false");
++
++    PyDict *rtn = new PyDict();
++
++    rtn->SetItemString("shipModifiedCharAttribs", new PyNone());                // Seen PyNone
++    rtn->SetItemString("structureInfo", new PyDict());                          // Seen PyDict 0 kvp
++    rtn->SetItemString("locationInfo", new PyNone());                           // Seen PyNone
++    rtn->SetItemString("shipInfo", new PyNone());                               // Seen PyDict x kvp
++    rtn->SetItemString("charInfo", new PyNone());                               // Seen PyTuple x items
++    rtn->SetItemString("shipState", new PyNone());                              // Seen PyTuple x items
++    rtn->SetItemString("activeShipID", new PyInt(call.client->GetShipID()));
++    rtn->SetItemString("shipID", new PyInt(call.client->GetShipID()));
++
++
++
++    //-------------------------------------------------------------------------
++    // shipInfo
++    PyDict *shipInfo = new PyDict();
++    PyDict *activeShipInfo = new PyDict();
++    activeShipInfo->SetItemString("itemID", new PyInt(call.client->GetShipID()));
++    activeShipInfo->SetItemString("invItem", call.client->GetShip()->GetItemRow());
++    activeShipInfo->SetItemString("activeEffects", new PyDict());
++    activeShipInfo->SetItemString("time", new PyLong(Win32TimeNow()));
++    activeShipInfo->SetItemString("attributes", new PyDict());
++    activeShipInfo->SetItemString("wallclockTime", new PyLong(Win32TimeNow()));
++    PyDict *shipInfoAttributes = new PyDict();
++    shipInfoAttributes->SetItem(new PyInt(3), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(4), new PyInt(1148000));
++    shipInfoAttributes->SetItem(new PyInt(9), new PyFloat(258.75));
++    shipInfoAttributes->SetItem(new PyInt(11), new PyInt(30));
++    shipInfoAttributes->SetItem(new PyInt(12), new PyInt(2));
++    shipInfoAttributes->SetItem(new PyInt(13), new PyInt(2));
++    shipInfoAttributes->SetItem(new PyInt(14), new PyInt(2));
++    shipInfoAttributes->SetItem(new PyInt(15), new PyInt(8));
++    shipInfoAttributes->SetItem(new PyInt(18), new PyFloat(155.25));
++    shipInfoAttributes->SetItem(new PyInt(37), new PyFloat(350.75));
++    shipInfoAttributes->SetItem(new PyInt(38), new PyInt(135));
++    shipInfoAttributes->SetItem(new PyInt(552), new PyInt(54));
++    shipInfoAttributes->SetItem(new PyInt(48), new PyInt(150));
++    shipInfoAttributes->SetItem(new PyInt(49), new PyFloat(68.6));
++    shipInfoAttributes->SetItem(new PyInt(564), new PyInt(504));
++    shipInfoAttributes->SetItem(new PyInt(55), new PyInt(57375));
++    shipInfoAttributes->SetItem(new PyInt(70), new PyFloat(3.88455));
++    shipInfoAttributes->SetItem(new PyInt(524), new PyFloat(0.75));
++    shipInfoAttributes->SetItem(new PyInt(76), new PyInt(24675));
++    shipInfoAttributes->SetItem(new PyInt(79), new PyInt(4675));
++    shipInfoAttributes->SetItem(new PyInt(600), new PyInt(3));
++    shipInfoAttributes->SetItem(new PyInt(101), new PyInt(1));
++    shipInfoAttributes->SetItem(new PyInt(102), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(1132), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(109), new PyFloat(0.67));
++    shipInfoAttributes->SetItem(new PyInt(110), new PyFloat(0.67));
++    shipInfoAttributes->SetItem(new PyInt(111), new PyFloat(0.67));
++    shipInfoAttributes->SetItem(new PyInt(113), new PyFloat(0.67));
++    shipInfoAttributes->SetItem(new PyInt(633), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(1154), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(1175), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(1176), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(153), new PyFloat(7.794E-07));
++    shipInfoAttributes->SetItem(new PyInt(1178), new PyInt(100));
++    shipInfoAttributes->SetItem(new PyInt(1179), new PyFloat(0.01));
++    shipInfoAttributes->SetItem(new PyInt(1182), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(1183), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(1184), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(161), new PyInt(24500));
++    shipInfoAttributes->SetItem(new PyInt(162), new PyInt(40));
++    shipInfoAttributes->SetItem(new PyInt(1196), new PyFloat(0.01));
++    shipInfoAttributes->SetItem(new PyInt(1198), new PyFloat(0.01));
++    shipInfoAttributes->SetItem(new PyInt(1199), new PyInt(100));
++    shipInfoAttributes->SetItem(new PyInt(1200), new PyInt(100));
++    shipInfoAttributes->SetItem(new PyInt(182), new PyInt(3327));
++    shipInfoAttributes->SetItem(new PyInt(192), new PyInt(3));
++    shipInfoAttributes->SetItem(new PyInt(1224), new PyInt(1));
++    shipInfoAttributes->SetItem(new PyInt(208), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(209), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(210), new PyInt(6));
++    shipInfoAttributes->SetItem(new PyInt(211), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(1768), new PyInt(11331));
++    shipInfoAttributes->SetItem(new PyInt(1259), new PyFloat(0.25));
++    shipInfoAttributes->SetItem(new PyInt(1261), new PyFloat(0.25));
++    shipInfoAttributes->SetItem(new PyInt(1262), new PyFloat(0.25));
++    shipInfoAttributes->SetItem(new PyInt(246), new PyInt(395));
++    shipInfoAttributes->SetItem(new PyInt(1271), new PyInt(10));
++    shipInfoAttributes->SetItem(new PyInt(1281), new PyInt(1));
++    shipInfoAttributes->SetItem(new PyInt(263), new PyFloat(157.5));
++    shipInfoAttributes->SetItem(new PyInt(264), new PyFloat(157.5));
++    shipInfoAttributes->SetItem(new PyInt(265), new PyFloat(201.25));
++    shipInfoAttributes->SetItem(new PyInt(267), new PyFloat(0.5));
++    shipInfoAttributes->SetItem(new PyInt(268), new PyFloat(0.9));
++    shipInfoAttributes->SetItem(new PyInt(269), new PyFloat(0.65));
++    shipInfoAttributes->SetItem(new PyInt(270), new PyFloat(0.65));
++    shipInfoAttributes->SetItem(new PyInt(271), new PyInt(1));
++    shipInfoAttributes->SetItem(new PyInt(272), new PyFloat(0.5));
++    shipInfoAttributes->SetItem(new PyInt(273), new PyFloat(0.6));
++    shipInfoAttributes->SetItem(new PyInt(274), new PyFloat(0.8));
++    shipInfoAttributes->SetItem(new PyInt(277), new PyInt(1));
++    shipInfoAttributes->SetItem(new PyInt(283), new PyInt(10));
++    shipInfoAttributes->SetItem(new PyInt(1177), new PyInt(0));
++    shipInfoAttributes->SetItem(new PyInt(525), new PyInt(1));
++    shipInfoAttributes->SetItem(new PyInt(422), new PyInt(1));
++    shipInfoAttributes->SetItem(new PyInt(479), new PyInt(593750));
++    shipInfoAttributes->SetItem(new PyInt(482), new PyFloat(155.25));
++    shipInfoAttributes->SetItem(new PyInt(484), new PyFloat(0.8));
++    activeShipInfo->SetItemString("attributes", shipInfoAttributes);
++
++    shipInfo->SetItem(new PyInt(call.client->GetShipID()), new PyObject("utillib.KeyVal", activeShipInfo));
++    rtn->SetItemString("shipInfo", shipInfo);
++
++
++    //-------------------------------------------------------------------------
++    // charInfo
++    PyTuple *charInfo = new PyTuple(2);
++    PyDict *charInfoDict = new PyDict();
++    charInfoDict->SetItemString("itemID", new PyInt(call.client->GetCharacterID()));
++    charInfoDict->SetItemString("wallclockTime", new PyLong(Win32TimeNow()));
++    charInfoDict->SetItemString("time", new PyLong(Win32TimeNow()));
++    charInfoDict->SetItemString("activeEffects", new PyDict());
++    charInfoDict->SetItemString("invItem", call.client->GetChar()->GetItemRow());
++    charInfoDict->SetItemString("attributes", new PyDict());
++
++    PyDict *charInfoAttributes = new PyDict();
++    charInfoAttributes->SetItem(new PyInt(4), new PyInt(0));        //attributeMass
++    charInfoAttributes->SetItem(new PyInt(522), new PyInt(2));      //attributeDamageCloudChance
++    charInfoAttributes->SetItem(new PyInt(38), new PyInt(0));       //attributeCapacity
++    charInfoAttributes->SetItem(new PyInt(161), new PyInt(1));      //attributeVolume
++    charInfoAttributes->SetItem(new PyInt(162), new PyInt(0));      //attributeRadius
++    charInfoAttributes->SetItem(new PyInt(164), new PyInt(19));     //attributeCharisma
++    charInfoAttributes->SetItem(new PyInt(165), new PyInt(20));     //attributeIntelligence
++    charInfoAttributes->SetItem(new PyInt(166), new PyInt(20));     //attributeMemory
++    charInfoAttributes->SetItem(new PyInt(167), new PyInt(20));     //attributePerception
++    charInfoAttributes->SetItem(new PyInt(168), new PyInt(20));     //attributeWillpower
++    charInfoAttributes->SetItem(new PyInt(187), new PyFloat(0.1));  //attributeRepairCostMultiplier
++    charInfoAttributes->SetItem(new PyInt(192), new PyInt(4));      //attributeMaxLockedTargets
++    charInfoAttributes->SetItem(new PyInt(196), new PyInt(1));      //attributeManufactureSlotLimit
++    charInfoAttributes->SetItem(new PyInt(723), new PyFloat(0.9));  //attributeContrabandDetectionChance
++    charInfoAttributes->SetItem(new PyInt(212), new PyInt(1));      //attributeMissileDamageMultiplier
++    charInfoAttributes->SetItem(new PyInt(219), new PyFloat(0.96)); //attributeManufactureTimeMultiplier
++    charInfoAttributes->SetItem(new PyInt(1267), new PyInt(10));    //attributeModuleRepairRate
++    charInfoAttributes->SetItem(new PyInt(1277), new PyFloat(0.5)); //attributeShipBrokenModuleRepairCostMultiplier
++    charInfoAttributes->SetItem(new PyInt(352), new PyInt(1));      //attributeMaxActiveDrones
++    charInfoAttributes->SetItem(new PyInt(359), new PyInt(1));      //attributeFastTalkPercentage
++    charInfoAttributes->SetItem(new PyInt(369), new PyInt(1));      //attributeManufactureCostMultiplier
++    charInfoAttributes->SetItem(new PyInt(378), new PyInt(1));      //attributeRefiningYieldPercentage
++    charInfoAttributes->SetItem(new PyInt(385), new PyInt(1));      //attributeManufacturingTimeResearchSpeed
++    charInfoAttributes->SetItem(new PyInt(387), new PyFloat(0.8));  //attributeCopySpeedPercent
++    charInfoAttributes->SetItem(new PyInt(398), new PyInt(1));      //attributeMineralNeedResearchSpeed
++    charInfoAttributes->SetItem(new PyInt(399), new PyInt(0));      //attributeDuplicatingChance
++    charInfoAttributes->SetItem(new PyInt(1959), new PyInt(1));     //attributeInventionReverseEngineeringResearchSpeed
++    charInfoAttributes->SetItem(new PyInt(428), new PyInt(120));    //attributeMiningDroneAmountPercent
++    charInfoAttributes->SetItem(new PyInt(435), new PyInt(1));      //attributeMaxGangModules
++    charInfoAttributes->SetItem(new PyInt(445), new PyFloat(0.1));  //attributeSmugglingChance
++    charInfoAttributes->SetItem(new PyInt(458), new PyInt(25000));  //attributeDroneControlDistance
++    charInfoAttributes->SetItem(new PyInt(467), new PyInt(1));      //attributeMaxLaborotorySlots
++    charInfoDict->SetItemString("attributes", charInfoAttributes);
++
++
++    PyDict *charInfoWrapperDict = new PyDict();
++    charInfoWrapperDict->SetItem(new PyInt(call.client->GetCharacterID()), new PyObject("utillib.KeyVal", charInfoDict));
++
++    charInfo->SetItem(0, charInfoWrapperDict);
++    charInfo->SetItem(1, new PyTuple(0));
++    rtn->SetItem("charInfo", charInfo);
++
++    return new PyObject("utillib.KeyVal", rtn);
+ 
+-	// ========================================================================
+-	// Create the response dictionary:
+-    PyDict *rsp = new PyDict;
+-
+-    rsp->SetItemString("charInfo", new PyNone);
+-    rsp->SetItemString("activeShipID", new PyInt(call.client->GetShipID()));
+-    rsp->SetItemString("locationInfo", new PyDict);
+-    rsp->SetItemString("shipInfo", new PyNone);
+-    rsp->SetItemString("shipModifiedCharAttribs", new PyNone);
+-    rsp->SetItemString("shipState", new PyNone);
+-
+-
+-	// ========================================================================
+-	// Setting "charInfo" in the Dictionary:
+-    if(args.arg1)
+-    {
+-        PyDict *charResult = call.client->GetChar()->CharGetInfo();
+-        if(charResult == NULL) {
+-            codelog(SERVICE__ERROR, "Unable to build char info for char %u", call.client->GetCharacterID());
+-            return NULL;
+-        }
+-
+-        rsp->SetItemString("charInfo", charResult);
+-    }
+-	// ========================================================================
+-
+-
+-	// ========================================================================
+-	// Setting "locationInfo" in the Dictionary:
+-	// TODO
+-	// ========================================================================
+-
+-
+-	// ========================================================================
+-	// Setting "shipInfo" in the Dictionary:
+-	if(args.arg2)
+-    {
+-        PyDict *shipResult = call.client->GetShip()->ShipGetInfo();
+-        if(shipResult == NULL) {
+-            codelog(SERVICE__ERROR, "Unable to build ship info for ship %u", call.client->GetShipID());
+-            return NULL;
+-        }
+-        rsp->SetItemString("shipInfo", shipResult);
+-    }
+-	// ========================================================================
+-
+-
+-	// ========================================================================
+-	// Setting "shipModifiedCharAttribs" in the Dictionary:
+-	// TODO
+-	// ========================================================================
+-
+-
+-	// ========================================================================
+-	// Setting "shipState" in the Dictionary:
+-    //Get some attributes about the ship and its modules for shipState
+-    PyTuple *rspShipState = new PyTuple(3);
+-
+-    //Contains a dict of the ship and its modules
+-
+-    if( call.client->GetShip().get() == NULL ) {
+-        codelog(SERVICE__ERROR, "Unable to build ship status for ship %u", call.client->GetShipID());
+-        return NULL;
+-    }
+-    PyDict *shipState = call.client->GetShip()->ShipGetState();
+-    rspShipState->items[0] = shipState;
+-
+-    //Contains a dict with the ship and an empty dict
+-    PyDict *shipStateItem2 = new PyDict();
+-    shipStateItem2->SetItem(new PyInt(call.client->GetShipID()), new PyDict());
+-    rspShipState->items[1] = shipStateItem2;
+-
+-    //Some PyObjectEx
+-    rspShipState->items[2] = new BuiltinSet();
+-
+-    rsp->SetItemString("shipState", rspShipState);
+-
+-
+-	return new PyObject( "utillib.KeyVal", rsp );
+ }
+ 
+diff --git a/src/eve-server/eve-server.cpp b/src/eve-server/eve-server.cpp
+index a1ab163..032a5bb 100644
+--- a/src/eve-server/eve-server.cpp
++++ b/src/eve-server/eve-server.cpp
+@@ -152,6 +152,10 @@ trapfpe()
+ #include "system/KeeperService.h"
+ #include "system/ScenarioService.h"
+ #include "system/WrecksAndLoot.h"
++
++#include "services/crimewatch/crimewatch.h"
++#include "services/lscProxy/lscProxy.h"
++#include "services/achievementTrackerMgr/achievementTrackerMgr.h"
+ // service manager
+ #include "PyServiceMgr.h"
+ 
+@@ -236,7 +240,7 @@ int main( int argc, char* argv[] )
+         std::cout << std::endl << "Exiting";
+         return 1;
+     }
+-    else if (DBcore::Connected)
++    else if (DBcore::GetStatus() == DBcore::Connected)
+     {
+         SysLog::Success("Server Init", "Connected to database successfully");
+     }
+@@ -298,6 +302,7 @@ int main( int argc, char* argv[] )
+     // Please keep the services list clean so it's easier to find something
+ 
+     PyServiceMgr::RegisterService(new AccountService());
++    PyServiceMgr::RegisterService(new AchievementTrackerMgrService());
+     PyServiceMgr::RegisterService(new AgentMgrService());
+     PyServiceMgr::RegisterService(new AggressionMgrService());
+     PyServiceMgr::RegisterService(new AlertService());
+@@ -321,6 +326,7 @@ int main( int argc, char* argv[] )
+     PyServiceMgr::RegisterService(new CorpStationMgrService());
+     PyServiceMgr::RegisterService(new ContractMgrService());
+     PyServiceMgr::RegisterService(new ContractProxyService());
++    PyServiceMgr::RegisterService(new CrimewatchService());
+     PyServiceMgr::RegisterService(new DevToolsProviderService());
+     PyServiceMgr::RegisterService(new DogmaIMService());
+     PyServiceMgr::RegisterService(new DogmaService());
+@@ -342,6 +348,7 @@ int main( int argc, char* argv[] )
+     PyServiceMgr::RegisterService(new LookupService());
+     PyServiceMgr::RegisterService(new LPService());
+     PyServiceMgr::RegisterService(PyServiceMgr::lsc_service = new LSCService(&command_dispatcher));
++    PyServiceMgr::RegisterService(new LSCProxyService());
+     PyServiceMgr::RegisterService(new MailMgrService());
+     PyServiceMgr::RegisterService(new MailingListMgrService());
+     PyServiceMgr::RegisterService(new MapService());
+diff --git a/src/eve-server/ship/ShipService.cpp b/src/eve-server/ship/ShipService.cpp
+index e507d61..e441362 100644
+--- a/src/eve-server/ship/ShipService.cpp
++++ b/src/eve-server/ship/ShipService.cpp
+@@ -103,6 +103,7 @@ PyBoundObject *ShipService::_CreateBoundObject(Client *c, const PyRep *bind_args
+ }
+ 
+ PyResult ShipBound::Handle_Board(PyCallArgs &call) {
++    call.tuple->Dump(stdout, "Board: ");
+     //Call_SingleIntegerArg args;
+     Call_TwoIntegerArgs args;
+ 
+@@ -133,7 +134,7 @@ PyResult ShipBound::Handle_Board(PyCallArgs &call) {
+         // However, if they are not in a pod, then that ship needs to be left there, so a new entity is created for the
+         // ship being left behind and ownership transferred to the EVE system
+ 
+-        if( !boardShipRef )
++        if( !boardShipRef )    b
+         {
+             SysLog::Error("ShipBound::Handle_Board()", "%s: Failed to get new ship %u.", call.client->GetName(), args.arg1);
+         }
+diff --git a/src/eve-server/standing/FactionWarMgrService.cpp b/src/eve-server/standing/FactionWarMgrService.cpp
+index c3ea2be..4581385 100644
+--- a/src/eve-server/standing/FactionWarMgrService.cpp
++++ b/src/eve-server/standing/FactionWarMgrService.cpp
+@@ -44,6 +44,8 @@ FactionWarMgrService::FactionWarMgrService()
+     PyCallable_REG_CALL(FactionWarMgrService, GetFactionalWarStatus)
+     PyCallable_REG_CALL(FactionWarMgrService, IsEnemyFaction)
+     PyCallable_REG_CALL(FactionWarMgrService, JoinFactionAsCharacter)
++
++    PyCallable_REG_CALL(FactionWarMgrService, GetFacWarSystems)
+ }
+ 
+ FactionWarMgrService::~FactionWarMgrService()
+@@ -136,3 +138,9 @@ PyResult FactionWarMgrService::Handle_IsEnemyFaction(PyCallArgs &call) {
+ PyResult FactionWarMgrService::Handle_JoinFactionAsCharacter(PyCallArgs &call) {
+   return NULL;
+ }
++
++PyResult FactionWarMgrService::Handle_GetFacWarSystems(PyCallArgs &call) {
++    SysLog::Log("FactionWarMgrService", "Called GetFacWarSystems stub.");
++
++    return NULL;
++}
+\ No newline at end of file
+diff --git a/src/eve-server/standing/FactionWarMgrService.h b/src/eve-server/standing/FactionWarMgrService.h
+index dc82ba9..cd6cc3b 100644
+--- a/src/eve-server/standing/FactionWarMgrService.h
++++ b/src/eve-server/standing/FactionWarMgrService.h
+@@ -44,6 +44,8 @@ public:
+     PyCallable_DECL_CALL(IsEnemyFaction)
+     PyCallable_DECL_CALL(JoinFactionAsCharacter)
+ 
++    PyCallable_DECL_CALL(GetFacWarSystems)
++
+ private:
+     class Dispatcher;
+    

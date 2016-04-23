@@ -73,6 +73,7 @@ public:
         PyCallable_REG_CALL(CorpRegistryBound, SetAccountKey)
         PyCallable_REG_CALL(CorpRegistryBound, PayoutDividend)
         PyCallable_REG_CALL(CorpRegistryBound, GetVoteCasesByCorporation)
+        PyCallable_REG_CALL(CorpRegistryBound, GetAggressionSettings)
     }
     virtual ~CorpRegistryBound() { }
     virtual void Release() {
@@ -107,6 +108,7 @@ public:
     PyCallable_DECL_CALL(SetAccountKey)
     PyCallable_DECL_CALL(PayoutDividend)
     PyCallable_DECL_CALL(GetVoteCasesByCorporation)
+    PyCallable_DECL_CALL(GetAggressionSettings)
 
 
 
@@ -1021,5 +1023,11 @@ PyResult CorpRegistryBound::Handle_PayoutDividend(PyCallArgs &call) {
 }
 
 PyResult CorpRegistryBound::Handle_GetVoteCasesByCorporation(PyCallArgs &call) {
+    return NULL;
+}
+
+PyResult CorpRegistryBound::Handle_GetAggressionSettings(PyCallArgs &call) {
+    SysLog::Log("CorpRegistryBound", "Called GetAggressionSettings stub.");
+    
     return NULL;
 }

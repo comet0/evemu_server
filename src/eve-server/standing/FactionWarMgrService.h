@@ -44,6 +44,8 @@ public:
     PyCallable_DECL_CALL(IsEnemyFaction)
     PyCallable_DECL_CALL(JoinFactionAsCharacter)
 
+    PyCallable_DECL_CALL(GetFacWarSystems)
+
 private:
     class Dispatcher;
    

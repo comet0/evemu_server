@@ -61,6 +61,8 @@ protected:
     PyCallable_DECL_CALL(GetRecentShipKillsAndLosses)
     PyCallable_DECL_CALL(GetLabels)
     PyCallable_DECL_CALL(CreateLabel)
+
+    PyCallable_DECL_CALL(GetCharacterSettings)
 };
 
 #endif

@@ -44,6 +44,8 @@ FactionWarMgrService::FactionWarMgrService()
     PyCallable_REG_CALL(FactionWarMgrService, GetFactionalWarStatus)
     PyCallable_REG_CALL(FactionWarMgrService, IsEnemyFaction)
     PyCallable_REG_CALL(FactionWarMgrService, JoinFactionAsCharacter)
+
+    PyCallable_REG_CALL(FactionWarMgrService, GetFacWarSystems)
 }
 
 FactionWarMgrService::~FactionWarMgrService()
@@ -135,4 +137,10 @@ PyResult FactionWarMgrService::Handle_IsEnemyFaction(PyCallArgs &call) {
 
 PyResult FactionWarMgrService::Handle_JoinFactionAsCharacter(PyCallArgs &call) {
   return NULL;
+}
+
+PyResult FactionWarMgrService::Handle_GetFacWarSystems(PyCallArgs &call) {
+    SysLog::Log("FactionWarMgrService", "Called GetFacWarSystems stub.");
+
+    return NULL;
 }

@@ -614,8 +614,7 @@ void Client::_UpdateSession( const CharacterConstRef& character )
     mSession.SetLong( "rolesAtHQ", character->rolesAtHQ() );
     mSession.SetLong( "rolesAtOther", character->rolesAtOther() );
 
-    if (IsInSpace())
-        mSession.SetInt("shipid", GetShipID());
+    mSession.SetInt("shipid", GetShipID());
 }
 
 
@@ -703,8 +702,8 @@ void Client::_UpdateSession2( uint32 characterID )
     m_shipId = shipID;
     if( m_char )
         m_char->SetActiveShip(m_shipId);
-    if (IsInSpace())
-        mSession.SetInt( "shipid", shipID );
+
+    mSession.SetInt( "shipid", shipID );
 }
 
 void Client::_SendCallReturn( const PyAddress& source, uint64 callID, PyRep** return_value, const char* channel )
@@ -1695,7 +1694,7 @@ bool Client::_VerifyLogin( CryptoChallengePacket& ccp )
     server_shake.challenge_responsehash = "55087";
 
     // begin config_vals
-            server_shake.imageserverurl = ImageServer::getURL(m_networkConfig); // Image server used to download images
+    server_shake.imageserverurl = ImageServer::getURL(m_networkConfig); // Image server used to download images
     server_shake.serverInfo = "EVEMU,127.0.0.1,127.0.0.1:8080,0"; // serverName, serverIP, espIP:espPort, isLive
     server_shake.publicCrestUrl = "";
     server_shake.bugReporting_BugReportServer = "";
@@ -1802,7 +1801,7 @@ bool Client::Handle_CallReq( PyPacket* packet, PyCallStream& req )
         dest = PyServiceMgr::LookupService(packet->dest.service);
         if( dest == NULL )
         {
-            SysLog::Error("Client","Unable to find service to handle call to: %s", packet->dest.service.c_str());
+            SysLog::Error("Client","User '%u' requested unknown svc '%s'", GetAccountID(), packet->dest.service.c_str());
             packet->dest.Dump(CLIENT__ERROR, "    ");
 
             throw PyException( new PyObjectEx_Type1(new PyToken("eveexceptions.ServiceNotFound"), new_tuple(packet->dest.service.c_str()), new_dict(new PyString("service"), new PyString(packet->dest.service.c_str()))));
@@ -1814,7 +1813,8 @@ bool Client::Handle_CallReq( PyPacket* packet, PyCallStream& req )
         SysLog::Error("Client","BeanCount");
     else
         //this should be Log::Debug, but because of the number of messages, I left it as .Log for readability, and ease of finding other debug messages
-        SysLog::Log("Server", "%s call made to %s",req.method.c_str(),packet->dest.service.c_str());
+        //SysLog::Log("Server", "%s call made to %s",req.method.c_str(),packet->dest.service.c_str());
+        SysLog::Log("Client", "User '%u' requested svc '%s' function '%s'", GetAccountID(), packet->dest.service.c_str(), req.method.c_str());
 
     //build arguments
     PyCallArgs args( this, req.arg_tuple, req.arg_dict );

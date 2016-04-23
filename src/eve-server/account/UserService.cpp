@@ -45,14 +45,14 @@ PyResult UserService::Handle_GetRedeemTokens( PyCallArgs& call )
 {
     // takes no args
 
-    SysLog::Debug( "UserService", "Called GetRedeemTokens stub." );
+    SysLog::Log( "UserService", "Called GetRedeemTokens stub." );
 
     return new PyList;
 }
 
 PyResult UserService::Handle_GetCreateDate( PyCallArgs& call )
 {
-    SysLog::Debug( "UserService", "Called GetCreateDate stub." );
+    SysLog::Log( "UserService", "Called GetCreateDate stub." );
 
     return new PyLong((long)Win32TimeNow());
 }

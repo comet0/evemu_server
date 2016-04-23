@@ -488,85 +488,171 @@ PyResult DogmaIMBound::Handle_GetAllInfo( PyCallArgs& call )
         codelog(SERVICE__ERROR, "Unable to decode arguments from '%s'", call.client->GetName());
         return NULL;
     }
+    SysLog::Debug("DogmaIMBound", "GetAllInfo: getCharInfo: %s", args.arg1 ? "true" : "false");
+    SysLog::Debug("DogmaIMBound", "GetAllInfo: getShipInfo: %s", args.arg2 ? "true" : "false");
 
-	// ========================================================================
-	// Create the response dictionary:
-    PyDict *rsp = new PyDict;
+    PyDict *rtn = new PyDict();
 
-    rsp->SetItemString("charInfo", new PyNone);
-    rsp->SetItemString("activeShipID", new PyInt(call.client->GetShipID()));
-    rsp->SetItemString("locationInfo", new PyDict);
-    rsp->SetItemString("shipInfo", new PyNone);
-    rsp->SetItemString("shipModifiedCharAttribs", new PyNone);
-    rsp->SetItemString("shipState", new PyNone);
-
-
-	// ========================================================================
-	// Setting "charInfo" in the Dictionary:
-    if(args.arg1)
-    {
-        PyDict *charResult = call.client->GetChar()->CharGetInfo();
-        if(charResult == NULL) {
-            codelog(SERVICE__ERROR, "Unable to build char info for char %u", call.client->GetCharacterID());
-            return NULL;
-        }
-
-        rsp->SetItemString("charInfo", charResult);
-    }
-	// ========================================================================
+    rtn->SetItemString("shipModifiedCharAttribs", new PyNone());                // Seen PyNone
+    rtn->SetItemString("structureInfo", new PyDict());                          // Seen PyDict 0 kvp
+    rtn->SetItemString("locationInfo", new PyNone());                           // Seen PyNone
+    rtn->SetItemString("shipInfo", new PyNone());                               // Seen PyDict x kvp
+    rtn->SetItemString("charInfo", new PyNone());                               // Seen PyTuple x items
+    rtn->SetItemString("shipState", new PyNone());                              // Seen PyTuple x items
+    rtn->SetItemString("activeShipID", new PyInt(call.client->GetShipID()));
+    rtn->SetItemString("shipID", new PyInt(call.client->GetShipID()));
 
 
-	// ========================================================================
-	// Setting "locationInfo" in the Dictionary:
-	// TODO
-	// ========================================================================
+
+    //-------------------------------------------------------------------------
+    // shipInfo
+    PyDict *shipInfo = new PyDict();
+    PyDict *activeShipInfo = new PyDict();
+    activeShipInfo->SetItemString("itemID", new PyInt(call.client->GetShipID()));
+    activeShipInfo->SetItemString("invItem", call.client->GetShip()->GetItemRow());
+    activeShipInfo->SetItemString("activeEffects", new PyDict());
+    activeShipInfo->SetItemString("time", new PyLong(Win32TimeNow()));
+    activeShipInfo->SetItemString("attributes", new PyDict());
+    activeShipInfo->SetItemString("wallclockTime", new PyLong(Win32TimeNow()));
+    PyDict *shipInfoAttributes = new PyDict();
+    shipInfoAttributes->SetItem(new PyInt(3), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(4), new PyInt(1148000));
+    shipInfoAttributes->SetItem(new PyInt(9), new PyFloat(258.75));
+    shipInfoAttributes->SetItem(new PyInt(11), new PyInt(30));
+    shipInfoAttributes->SetItem(new PyInt(12), new PyInt(2));
+    shipInfoAttributes->SetItem(new PyInt(13), new PyInt(2));
+    shipInfoAttributes->SetItem(new PyInt(14), new PyInt(2));
+    shipInfoAttributes->SetItem(new PyInt(15), new PyInt(8));
+    shipInfoAttributes->SetItem(new PyInt(18), new PyFloat(155.25));
+    shipInfoAttributes->SetItem(new PyInt(37), new PyFloat(350.75));
+    shipInfoAttributes->SetItem(new PyInt(38), new PyInt(135));
+    shipInfoAttributes->SetItem(new PyInt(552), new PyInt(54));
+    shipInfoAttributes->SetItem(new PyInt(48), new PyInt(150));
+    shipInfoAttributes->SetItem(new PyInt(49), new PyFloat(68.6));
+    shipInfoAttributes->SetItem(new PyInt(564), new PyInt(504));
+    shipInfoAttributes->SetItem(new PyInt(55), new PyInt(57375));
+    shipInfoAttributes->SetItem(new PyInt(70), new PyFloat(3.88455));
+    shipInfoAttributes->SetItem(new PyInt(524), new PyFloat(0.75));
+    shipInfoAttributes->SetItem(new PyInt(76), new PyInt(24675));
+    shipInfoAttributes->SetItem(new PyInt(79), new PyInt(4675));
+    shipInfoAttributes->SetItem(new PyInt(600), new PyInt(3));
+    shipInfoAttributes->SetItem(new PyInt(101), new PyInt(1));
+    shipInfoAttributes->SetItem(new PyInt(102), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(1132), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(109), new PyFloat(0.67));
+    shipInfoAttributes->SetItem(new PyInt(110), new PyFloat(0.67));
+    shipInfoAttributes->SetItem(new PyInt(111), new PyFloat(0.67));
+    shipInfoAttributes->SetItem(new PyInt(113), new PyFloat(0.67));
+    shipInfoAttributes->SetItem(new PyInt(633), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(1154), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(1175), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(1176), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(153), new PyFloat(7.794E-07));
+    shipInfoAttributes->SetItem(new PyInt(1178), new PyInt(100));
+    shipInfoAttributes->SetItem(new PyInt(1179), new PyFloat(0.01));
+    shipInfoAttributes->SetItem(new PyInt(1182), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(1183), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(1184), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(161), new PyInt(24500));
+    shipInfoAttributes->SetItem(new PyInt(162), new PyInt(40));
+    shipInfoAttributes->SetItem(new PyInt(1196), new PyFloat(0.01));
+    shipInfoAttributes->SetItem(new PyInt(1198), new PyFloat(0.01));
+    shipInfoAttributes->SetItem(new PyInt(1199), new PyInt(100));
+    shipInfoAttributes->SetItem(new PyInt(1200), new PyInt(100));
+    shipInfoAttributes->SetItem(new PyInt(182), new PyInt(3327));
+    shipInfoAttributes->SetItem(new PyInt(192), new PyInt(3));
+    shipInfoAttributes->SetItem(new PyInt(1224), new PyInt(1));
+    shipInfoAttributes->SetItem(new PyInt(208), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(209), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(210), new PyInt(6));
+    shipInfoAttributes->SetItem(new PyInt(211), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(1768), new PyInt(11331));
+    shipInfoAttributes->SetItem(new PyInt(1259), new PyFloat(0.25));
+    shipInfoAttributes->SetItem(new PyInt(1261), new PyFloat(0.25));
+    shipInfoAttributes->SetItem(new PyInt(1262), new PyFloat(0.25));
+    shipInfoAttributes->SetItem(new PyInt(246), new PyInt(395));
+    shipInfoAttributes->SetItem(new PyInt(1271), new PyInt(10));
+    shipInfoAttributes->SetItem(new PyInt(1281), new PyInt(1));
+    shipInfoAttributes->SetItem(new PyInt(263), new PyFloat(157.5));
+    shipInfoAttributes->SetItem(new PyInt(264), new PyFloat(157.5));
+    shipInfoAttributes->SetItem(new PyInt(265), new PyFloat(201.25));
+    shipInfoAttributes->SetItem(new PyInt(267), new PyFloat(0.5));
+    shipInfoAttributes->SetItem(new PyInt(268), new PyFloat(0.9));
+    shipInfoAttributes->SetItem(new PyInt(269), new PyFloat(0.65));
+    shipInfoAttributes->SetItem(new PyInt(270), new PyFloat(0.65));
+    shipInfoAttributes->SetItem(new PyInt(271), new PyInt(1));
+    shipInfoAttributes->SetItem(new PyInt(272), new PyFloat(0.5));
+    shipInfoAttributes->SetItem(new PyInt(273), new PyFloat(0.6));
+    shipInfoAttributes->SetItem(new PyInt(274), new PyFloat(0.8));
+    shipInfoAttributes->SetItem(new PyInt(277), new PyInt(1));
+    shipInfoAttributes->SetItem(new PyInt(283), new PyInt(10));
+    shipInfoAttributes->SetItem(new PyInt(1177), new PyInt(0));
+    shipInfoAttributes->SetItem(new PyInt(525), new PyInt(1));
+    shipInfoAttributes->SetItem(new PyInt(422), new PyInt(1));
+    shipInfoAttributes->SetItem(new PyInt(479), new PyInt(593750));
+    shipInfoAttributes->SetItem(new PyInt(482), new PyFloat(155.25));
+    shipInfoAttributes->SetItem(new PyInt(484), new PyFloat(0.8));
+    activeShipInfo->SetItemString("attributes", shipInfoAttributes);
+
+    shipInfo->SetItem(new PyInt(call.client->GetShipID()), new PyObject("utillib.KeyVal", activeShipInfo));
+    rtn->SetItemString("shipInfo", shipInfo);
 
 
-	// ========================================================================
-	// Setting "shipInfo" in the Dictionary:
-	if(args.arg2)
-    {
-        PyDict *shipResult = call.client->GetShip()->ShipGetInfo();
-        if(shipResult == NULL) {
-            codelog(SERVICE__ERROR, "Unable to build ship info for ship %u", call.client->GetShipID());
-            return NULL;
-        }
-        rsp->SetItemString("shipInfo", shipResult);
-    }
-	// ========================================================================
+    //-------------------------------------------------------------------------
+    // charInfo
+    PyTuple *charInfo = new PyTuple(2);
+    PyDict *charInfoDict = new PyDict();
+    charInfoDict->SetItemString("itemID", new PyInt(call.client->GetCharacterID()));
+    charInfoDict->SetItemString("wallclockTime", new PyLong(Win32TimeNow()));
+    charInfoDict->SetItemString("time", new PyLong(Win32TimeNow()));
+    charInfoDict->SetItemString("activeEffects", new PyDict());
+    charInfoDict->SetItemString("invItem", call.client->GetChar()->GetItemRow());
+    charInfoDict->SetItemString("attributes", new PyDict());
+
+    PyDict *charInfoAttributes = new PyDict();
+    charInfoAttributes->SetItem(new PyInt(4), new PyInt(0));        //attributeMass
+    charInfoAttributes->SetItem(new PyInt(522), new PyInt(2));      //attributeDamageCloudChance
+    charInfoAttributes->SetItem(new PyInt(38), new PyInt(0));       //attributeCapacity
+    charInfoAttributes->SetItem(new PyInt(161), new PyInt(1));      //attributeVolume
+    charInfoAttributes->SetItem(new PyInt(162), new PyInt(0));      //attributeRadius
+    charInfoAttributes->SetItem(new PyInt(164), new PyInt(19));     //attributeCharisma
+    charInfoAttributes->SetItem(new PyInt(165), new PyInt(20));     //attributeIntelligence
+    charInfoAttributes->SetItem(new PyInt(166), new PyInt(20));     //attributeMemory
+    charInfoAttributes->SetItem(new PyInt(167), new PyInt(20));     //attributePerception
+    charInfoAttributes->SetItem(new PyInt(168), new PyInt(20));     //attributeWillpower
+    charInfoAttributes->SetItem(new PyInt(187), new PyFloat(0.1));  //attributeRepairCostMultiplier
+    charInfoAttributes->SetItem(new PyInt(192), new PyInt(4));      //attributeMaxLockedTargets
+    charInfoAttributes->SetItem(new PyInt(196), new PyInt(1));      //attributeManufactureSlotLimit
+    charInfoAttributes->SetItem(new PyInt(723), new PyFloat(0.9));  //attributeContrabandDetectionChance
+    charInfoAttributes->SetItem(new PyInt(212), new PyInt(1));      //attributeMissileDamageMultiplier
+    charInfoAttributes->SetItem(new PyInt(219), new PyFloat(0.96)); //attributeManufactureTimeMultiplier
+    charInfoAttributes->SetItem(new PyInt(1267), new PyInt(10));    //attributeModuleRepairRate
+    charInfoAttributes->SetItem(new PyInt(1277), new PyFloat(0.5)); //attributeShipBrokenModuleRepairCostMultiplier
+    charInfoAttributes->SetItem(new PyInt(352), new PyInt(1));      //attributeMaxActiveDrones
+    charInfoAttributes->SetItem(new PyInt(359), new PyInt(1));      //attributeFastTalkPercentage
+    charInfoAttributes->SetItem(new PyInt(369), new PyInt(1));      //attributeManufactureCostMultiplier
+    charInfoAttributes->SetItem(new PyInt(378), new PyInt(1));      //attributeRefiningYieldPercentage
+    charInfoAttributes->SetItem(new PyInt(385), new PyInt(1));      //attributeManufacturingTimeResearchSpeed
+    charInfoAttributes->SetItem(new PyInt(387), new PyFloat(0.8));  //attributeCopySpeedPercent
+    charInfoAttributes->SetItem(new PyInt(398), new PyInt(1));      //attributeMineralNeedResearchSpeed
+    charInfoAttributes->SetItem(new PyInt(399), new PyInt(0));      //attributeDuplicatingChance
+    charInfoAttributes->SetItem(new PyInt(1959), new PyInt(1));     //attributeInventionReverseEngineeringResearchSpeed
+    charInfoAttributes->SetItem(new PyInt(428), new PyInt(120));    //attributeMiningDroneAmountPercent
+    charInfoAttributes->SetItem(new PyInt(435), new PyInt(1));      //attributeMaxGangModules
+    charInfoAttributes->SetItem(new PyInt(445), new PyFloat(0.1));  //attributeSmugglingChance
+    charInfoAttributes->SetItem(new PyInt(458), new PyInt(25000));  //attributeDroneControlDistance
+    charInfoAttributes->SetItem(new PyInt(467), new PyInt(1));      //attributeMaxLaborotorySlots
+    charInfoDict->SetItemString("attributes", charInfoAttributes);
 
 
-	// ========================================================================
-	// Setting "shipModifiedCharAttribs" in the Dictionary:
-	// TODO
-	// ========================================================================
+    PyDict *charInfoWrapperDict = new PyDict();
+    charInfoWrapperDict->SetItem(new PyInt(call.client->GetCharacterID()), new PyObject("utillib.KeyVal", charInfoDict));
 
+    charInfo->SetItem(0, charInfoWrapperDict);
+    charInfo->SetItem(1, new PyTuple(0));
+    rtn->SetItem("charInfo", charInfo);
 
-	// ========================================================================
-	// Setting "shipState" in the Dictionary:
-    //Get some attributes about the ship and its modules for shipState
-    PyTuple *rspShipState = new PyTuple(3);
+    return new PyObject("utillib.KeyVal", rtn);
 
-    //Contains a dict of the ship and its modules
-
-    if( call.client->GetShip().get() == NULL ) {
-        codelog(SERVICE__ERROR, "Unable to build ship status for ship %u", call.client->GetShipID());
-        return NULL;
-    }
-    PyDict *shipState = call.client->GetShip()->ShipGetState();
-    rspShipState->items[0] = shipState;
-
-    //Contains a dict with the ship and an empty dict
-    PyDict *shipStateItem2 = new PyDict();
-    shipStateItem2->SetItem(new PyInt(call.client->GetShipID()), new PyDict());
-    rspShipState->items[1] = shipStateItem2;
-
-    //Some PyObjectEx
-    rspShipState->items[2] = new BuiltinSet();
-
-    rsp->SetItemString("shipState", rspShipState);
-
-
-	return new PyObject( "utillib.KeyVal", rsp );
 }
 

@@ -56,6 +56,8 @@ CharMgrService::CharMgrService()
     PyCallable_REG_CALL(CharMgrService, EditContact)
     PyCallable_REG_CALL(CharMgrService, GetRecentShipKillsAndLosses)
 
+    PyCallable_REG_CALL(CharMgrService, GetCharacterSettings)
+
     //these 2 are for labels in PnP window
     PyCallable_REG_CALL(CharMgrService, GetLabels)
     PyCallable_REG_CALL(CharMgrService, CreateLabel)
@@ -323,4 +325,11 @@ PyResult CharMgrService::Handle_CreateLabel( PyCallArgs& call )
 {
     //  will add this completed code at a later date  -allan 25Jul14
   return NULL;
+}
+
+PyResult CharMgrService::Handle_GetCharacterSettings( PyCallArgs& call )
+{
+    SysLog::Log("CharMgrService", "Called GetCharacterSettings stub.");
+
+    return NULL;
 }

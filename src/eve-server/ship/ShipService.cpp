@@ -103,6 +103,7 @@ PyBoundObject *ShipService::_CreateBoundObject(Client *c, const PyRep *bind_args
 }
 
 PyResult ShipBound::Handle_Board(PyCallArgs &call) {
+    call.tuple->Dump(stdout, "Board: ");
     //Call_SingleIntegerArg args;
     Call_TwoIntegerArgs args;
 
@@ -133,7 +134,7 @@ PyResult ShipBound::Handle_Board(PyCallArgs &call) {
         // However, if they are not in a pod, then that ship needs to be left there, so a new entity is created for the
         // ship being left behind and ownership transferred to the EVE system
 
-        if( !boardShipRef )
+        if( !boardShipRef )    b
         {
             SysLog::Error("ShipBound::Handle_Board()", "%s: Failed to get new ship %u.", call.client->GetName(), args.arg1);
         }

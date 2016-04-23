@@ -57,7 +57,9 @@ public:
         mapitr res;
         res = m_serviceCalls.find(method_name);
         if(res == m_serviceCalls.end()) {
-            SysLog::Error("Server","Unknown call to '%s' by '%s'", method_name.c_str(), call.client->GetName());
+//            SysLog::Error("Server","Unknown call to '%s' by '%s'", method_name.c_str(), call.client->GetName());
+//            SysLog::Error("Call Dispatcher", "User '%u' requested svc '%s' unknown function '%s'", call.client->GetAccountID(), m_parent->GetName(), method_name.c_str());//"Unknown call to '%s' by '%s'", method_name.c_str(), call.client->GetName());
+            SysLog::Error("Call Dispatcher", "TODO: Create stub for svc '%s' and function '%s'", m_parent->GetName(), method_name.c_str());
             return NULL;
         }
 
