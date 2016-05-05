@@ -28,6 +28,7 @@
 #include "marshal/EVEMarshalStringTable.h"
 
 /* we made up this list so we have efficient string communication with the client */
+// Updated from client with command "sorted(dict(blue.marshal.stringTable), key=dict(blue.marshal.stringTable).get)"
 const char* const s_mStringTable[] =
 {
     "*corpid",
@@ -75,15 +76,15 @@ const char* const s_mStringTable[] =
     "lines",
     "locationID",
     "locationName",
-    "carbon.common.script.net.machoNetPacket.CallReq",
-    "carbon.common.script.net.machoNetPacket.CallRsp",
-    "carbon.common.script.net.machoNetPacket.MachoAddress",
-    "carbon.common.script.net.machoNetPacket.Notification",
-    "carbon.common.script.net.machoNetPacket.SessionChangeNotification",
+    "macho.CallReq",
+    "macho.CallRsp",
+    "macho.MachoAddress",
+    "macho.Notification",
+    "macho.SessionChangeNotification",
     "modules",
     "name",
     "objectCaching",
-    "carbon.common.script.net.objectCaching.CachedObject",
+    "objectCaching.CachedObject",
     "OnChatJoin",
     "OnChatLeave",
     "OnChatSpeak",
@@ -108,9 +109,9 @@ const char* const s_mStringTable[] =
     "userID",
     "util.CachedObject",
     "util.IndexRowset",
-    "carbon.common.script.net.moniker.Moniker",
+    "util.Moniker",
     "util.Row",
-    "eve.common.script.sys.rowset.Rowset",
+    "util.Rowset",
     "*multicastID",
     "AddBalls",
     "AttackHit3",
