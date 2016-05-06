@@ -1744,7 +1744,7 @@ bool Client::_VerifyFuncResult( CryptoHandshakeResult& result )
     ack.access_token = new PyNone;
     ack.client_hash = new PyNone;
     ack.sessionID = 123456789;              // TODO: Generate random sessionID for every client.
-    ack.user_clientid = GetAccountID();
+    ack.user_clientid = GetAccountID();     // TODO: This is wrong, user_clientid != userid on live, Appears to be (incrementingOffset * 10000000000L + nodeID)
     ack.live_updates = new PyList(0);       // No, we will never update the client with this method.
     ack.languageID = GetLanguageID();
     ack.userid = GetAccountID();
@@ -1803,8 +1803,8 @@ bool Client::Handle_CallReq( PyPacket* packet, PyCallStream& req )
             SysLog::Error("Client","Unable to find service to handle call to: %s", packet->dest.service.c_str());
             packet->dest.Dump(CLIENT__ERROR, "    ");
 
-            //TODO: throw proper exception to client (exceptions.ServiceNotFound).
-            throw PyException( new PyNone );
+            PyObjectEx_Type1 *exception = new PyObjectEx_Type1(new PyToken("eveexceptions.ServiceNotFound"), new_tuple(new PyString(packet->dest.service.c_str())), new_dict(new PyString("serviceName"), new PyString(packet->dest.service.c_str())));
+            throw PyException( exception );
         }
     }
 
