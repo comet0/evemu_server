@@ -161,6 +161,16 @@ bool MarshalStream::VisitLong( const PyLong* rep )
     return true;
 }
 
+bool MarshalStream::VisitULong( const PyULong *rep )
+{
+    // TODO: This is a hack, and needs to be optimised
+    Put<uint8>(Op_PyVarInteger);
+    Put<uint8>(9); // 128 = 16 bytes
+    Put<uint64>(rep->value());
+    Put<uint8>(0);
+    return true;
+}
+
 bool MarshalStream::VisitBoolean( const PyBool* rep )
 {
     if( rep->value() == true )

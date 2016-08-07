@@ -58,7 +58,8 @@ const char* const PyRep::s_mTypeString[] =
     "Object",           //15
     "ObjectEx",         //16
     "PackedRow",        //17
-    "UNKNOWN TYPE",     //18
+    "ULong",            //18
+    "UNKNOWN TYPE",     //19
 };
 
 PyRep::PyRep( PyType t ) : RefObject( 1 ), mType( t ) {}
@@ -179,6 +180,69 @@ int32 PyLong::hash() const
 #undef PyLong_MASK
 
 #undef LONG_BIT_PyLong_SHIFT
+}
+
+/************************************************************************/
+/* PyRep ULong Class                                                     */
+/************************************************************************/
+PyULong::PyULong( const uint64 i ) : PyRep( PyRep::PyTypeULong ), mValue( i ) {}
+PyULong::PyULong( const PyULong& oth ) : PyRep( PyRep::PyTypeULong ), mValue( oth.value() ) {}
+
+PyRep* PyULong::Clone() const
+{
+    return new PyULong( *this );
+}
+
+bool PyULong::visit( PyVisitor& v ) const
+{
+    return v.VisitULong( this );
+}
+
+int32 PyULong::hash() const
+{
+#define PyULong_SHIFT    15
+#define PyULong_BASE     (1 << PyULong_SHIFT)
+#define PyULong_MASK     ((int)(PyULong_BASE - 1))
+
+#define ULONG_BIT_PyULong_SHIFT    (8*sizeof(long) - PyULong_SHIFT)
+
+    uint64 x;
+    int i;
+    int sign;
+
+    /* This is designed so that Python ints and longs with the
+    same value hash to the same value, otherwise comparisons
+    of mapping keys will turn out weird */
+    i = 8;
+    sign = 1;
+    x = 0;
+    if( i < 0 ) {
+        sign = -1;
+        i = -(i);
+    }
+    /* The following loop produces a C long x such that (unsigned long)x
+    is congruent to the absolute value of v modulo ULONG_MAX.  The
+    resulting x is nonzero if and only if v is. */
+    while( --i >= 0 ) {
+        /* Force a native long #-bits (32 or 64) circular shift */
+        x = ((x << PyULong_SHIFT) & ~PyULong_MASK) | ((x >> ULONG_BIT_PyULong_SHIFT) & PyULong_MASK);
+        x += ((uint8*)&mValue)[i];// v->ob_digit[i];
+        /* If the addition above overflowed (thinking of x as
+        unsigned), we compensate by incrementing.  This preserves
+        the value modulo ULONG_MAX. */
+        if( (unsigned long)x < ((uint8*)&mValue)[i] )//v->ob_digit[i])
+            x++;
+    }
+    x = x * sign;
+    if( x == -1 )
+        x = -2;
+    return x;
+
+#undef PyULong_SHIFT
+#undef PyULong_BASE
+#undef PyULong_MASK
+
+#undef ULONG_BIT_PyULong_SHIFT
 }
 
 /************************************************************************/

@@ -102,8 +102,9 @@ public:
         PyTypeObject            = 15,
         PyTypeObjectEx          = 16,
         PyTypePackedRow         = 17,
-        PyTypeError             = 18,
-        PyTypeMax               = 18,
+        PyTypeULong             = 18,
+        PyTypeError             = 19,
+        PyTypeMax               = 19,
     };
 
     /** PyType check functions
@@ -274,6 +275,28 @@ public:
 
 protected:
     const int64 mValue;
+};
+
+/**
+ * @brief Python unsigned long integer.
+ *
+ * Class representing 64-bit unsigned integer.
+ */
+class PyULong : public PyRep
+{
+public:
+    PyULong( const uint64 i );
+    PyULong( const PyULong& oth );
+
+    PyRep* Clone() const;
+    bool visit( PyVisitor& v ) const;
+
+    uint64 value() const { return mValue; }
+
+    int32 hash() const;
+
+protected:
+    const uint64 mValue;
 };
 
 /**

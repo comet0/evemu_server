@@ -220,6 +220,7 @@ public:
         return true;
     }
     bool VisitLong( const PyLong* rep ) { return false; }
+    bool VisitULong( const PyULong* rep ) { return false; }
     bool VisitReal( const PyFloat* rep ) { return false; }
     bool VisitBoolean( const PyBool* rep ) { return false; }
     bool VisitNone( const PyNone* rep ) { return false; }

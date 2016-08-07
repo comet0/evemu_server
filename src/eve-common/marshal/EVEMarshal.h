@@ -100,6 +100,8 @@ protected:
     bool VisitInteger( const PyInt* rep );
     //! Adds a long to the stream
     bool VisitLong( const PyLong* rep );
+
+    bool VisitULong( const PyULong* rep );
     //! Adds a boolean to the stream
     bool VisitBoolean( const PyBool* rep );
     //! Adds a double to the stream
