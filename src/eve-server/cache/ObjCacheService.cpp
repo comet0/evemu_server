@@ -96,7 +96,6 @@ const char *const ObjCacheService::CharCreateCachableObjects[] = {
     "charCreationInfo.bl_accessories",
     "charCreationInfo.bl_costumes",
     "charCreationInfo.bl_lights",
-    "charCreationInfo.races",
     "charCreationInfo.ancestries",
     "charCreationInfo.schools",
     "charCreationInfo.attributes",
