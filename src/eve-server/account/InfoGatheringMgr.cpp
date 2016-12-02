@@ -49,73 +49,104 @@ PyResult InfoGatheringMgr::Handle_GetStateAndConfig(PyCallArgs &call)
     rsp->SetItemString("isEnabled", new PyInt(1)); //0 = Disabled, 1 = Enabled. Set to 0 becuase jsut gettting rid of exception.
 
     PyDict *aggregates = new PyDict();
-    aggregates->SetItem(new PyInt(2), new BuiltinSet({1, 2, 3}));
-    aggregates->SetItem(new PyInt(3), new BuiltinSet({1, 2, 6}));
-    aggregates->SetItem(new PyInt(4), new BuiltinSet({1, 2, 6}));
-    aggregates->SetItem(new PyInt(5), new BuiltinSet({1, 2, 6}));
-    aggregates->SetItem(new PyInt(6), new BuiltinSet({1, 2, 3, 4}));
-    aggregates->SetItem(new PyInt(7), new BuiltinSet({1}));
-    aggregates->SetItem(new PyInt(8), new BuiltinSet({1, 4}));
-    aggregates->SetItem(new PyInt(9), new BuiltinSet({1, 4}));
-    aggregates->SetItem(new PyInt(12), new BuiltinSet({1, 2, 3}));
-    aggregates->SetItem(new PyInt(13), new BuiltinSet({1, 2, 3}));
-    aggregates->SetItem(new PyInt(14), new BuiltinSet({1, 2, 3}));
-    aggregates->SetItem(new PyInt(17), new BuiltinSet({1}));
-    aggregates->SetItem(new PyInt(18), new BuiltinSet({1, 3}));
-    aggregates->SetItem(new PyInt(19), new BuiltinSet({1, 2}));
-    aggregates->SetItem(new PyInt(20), new BuiltinSet({1, 3}));
-    aggregates->SetItem(new PyInt(21), new BuiltinSet({1, 3}));
-    aggregates->SetItem(new PyInt(22), new BuiltinSet({1, 2, 3, 4, 5}));
-    aggregates->SetItem(new PyInt(25), new BuiltinSet({1, 6}));
-    aggregates->SetItem(new PyInt(26), new BuiltinSet({1}));
-    aggregates->SetItem(new PyInt(27), new BuiltinSet({1, 2, 6, 7}));
-    aggregates->SetItem(new PyInt(28), new BuiltinSet({1, 4}));
-    aggregates->SetItem(new PyInt(29), new BuiltinSet({1, 3, 6}));
-    aggregates->SetItem(new PyInt(30), new BuiltinSet({1}));
-    aggregates->SetItem(new PyInt(32), new BuiltinSet({1, 2, 6, 7}));
-    aggregates->SetItem(new PyInt(33), new BuiltinSet({1, 2, 6}));
-    aggregates->SetItem(new PyInt(34), new BuiltinSet({1, 2, 6}));
+    aggregates->SetItem(new PyInt(infoEventOreMined), new BuiltinSet({1, 2, 3}));
+    aggregates->SetItem(new PyInt(infoEventSalvagingAttempts), new BuiltinSet({1, 2, 6}));
+    aggregates->SetItem(new PyInt(infoEventHackingAttempts), new BuiltinSet({1, 2, 6}));
+    aggregates->SetItem(new PyInt(infoEventArcheologyAttempts), new BuiltinSet({1, 2, 6}));
+    aggregates->SetItem(new PyInt(infoEventScanningAttempts), new BuiltinSet({1, 2, 3, 4}));
+    aggregates->SetItem(new PyInt(infoEventFleet), new BuiltinSet({1}));
+    aggregates->SetItem(new PyInt(infoEventFleetCreated), new BuiltinSet({1, 4}));
+    aggregates->SetItem(new PyInt(infoEventFleetBroadcast), new BuiltinSet({1, 4}));
+    aggregates->SetItem(new PyInt(infoEventNPCKilled), new BuiltinSet({1, 2, 3}));
+    aggregates->SetItem(new PyInt(infoEventRefinedTypesAmount), new BuiltinSet({1, 2, 3}));
+    aggregates->SetItem(new PyInt(infoEventRefiningYieldTypesAmount), new BuiltinSet({1, 2, 3}));
+    aggregates->SetItem(new PyInt(infoEventPlanetUserAccess), new BuiltinSet({1}));
+    aggregates->SetItem(new PyInt(infoEventPlanetInstallProgramQuery), new BuiltinSet({1, 3}));
+    aggregates->SetItem(new PyInt(infoEventPlanetUpdateNetwork), new BuiltinSet({1, 2}));
+    aggregates->SetItem(new PyInt(infoEventPlanetAbandonPlanet), new BuiltinSet({1, 3}));
+    aggregates->SetItem(new PyInt(infoEventPlanetEstablishColony), new BuiltinSet({1, 3}));
+    aggregates->SetItem(new PyInt(infoEventEntityKillWithoutBounty), new BuiltinSet({1, 2, 3, 4, 5}));
+    aggregates->SetItem(new PyInt(infoEventViewStateUsage), new BuiltinSet({1, 6}));
+    aggregates->SetItem(new PyInt(infoEventDoubleclickToMove), new BuiltinSet({1}));
+    aggregates->SetItem(new PyInt(infoEventCCDuration), new BuiltinSet({1, 2, 6, 7}));
+    aggregates->SetItem(new PyInt(infoEvenTrackingCameraEnabled), new BuiltinSet({1, 4}));
+    aggregates->SetItem(new PyInt(infoEventRadialMenuAction), new BuiltinSet({1, 3, 6}));
+    aggregates->SetItem(new PyInt(infoEventISISCounters), new BuiltinSet({1}));
+    aggregates->SetItem(new PyInt(infoEventCareerFunnel), new BuiltinSet({1, 2, 6, 7}));
+    aggregates->SetItem(new PyInt(infoEventWndOpenedFirstTime), new BuiltinSet({1, 2, 6}));
+    aggregates->SetItem(new PyInt(infoEventWndOpenedCounters), new BuiltinSet({1, 2, 6}));
     rsp->SetItemString("infoTypeAggregates", aggregates);
     rsp->SetItemString("infoTypesOncePerRun", new BuiltinSet(new PyList()));
     PyDict *params = new PyDict();
-    params->SetItem(new PyInt(2), new BuiltinSet({0, 1, 2, 3, 4}));
-    params->SetItem(new PyInt(3), new BuiltinSet({0, 1, 2, 3, 6}));
-    params->SetItem(new PyInt(4), new BuiltinSet({0, 1, 2, 3, 6}));
-    params->SetItem(new PyInt(5), new BuiltinSet({0, 1, 2, 3, 6}));
-    params->SetItem(new PyInt(6), new BuiltinSet({0, 1, 2, 3, 4, 5}));
-    params->SetItem(new PyInt(7), new BuiltinSet({0, 1, 3}));
-    params->SetItem(new PyInt(8), new BuiltinSet({0, 1, 3, 4}));
-    params->SetItem(new PyInt(9), new BuiltinSet({0, 1, 3, 4}));
-    params->SetItem(new PyInt(12), new BuiltinSet({0, 1, 2, 3, 4}));
-    params->SetItem(new PyInt(13), new BuiltinSet({0, 1, 2, 3, 9}));
-    params->SetItem(new PyInt(14), new BuiltinSet({0, 1, 2, 3, 9}));
-    params->SetItem(new PyInt(15), new BuiltinSet({0, 1, 2, 3, 4, 5}));
-    params->SetItem(new PyInt(16), new BuiltinSet({0, 1, 2, 3, 4, 5, 9, 10}));
-    params->SetItem(new PyInt(17), new BuiltinSet({0, 1, 3, 4, 5}));
-    params->SetItem(new PyInt(18), new BuiltinSet({0, 1, 3, 4}));
-    params->SetItem(new PyInt(19), new BuiltinSet({0, 1, 2, 3, 4, 5}));
-    params->SetItem(new PyInt(20), new BuiltinSet({0, 1, 3, 4}));
-    params->SetItem(new PyInt(21), new BuiltinSet({0, 1, 3, 4}));
-    params->SetItem(new PyInt(22), new BuiltinSet({0, 1, 2, 3, 4, 5, 9}));
-    params->SetItem(new PyInt(24), new BuiltinSet({0, 1, 2, 3}));
-    params->SetItem(new PyInt(25), new BuiltinSet({0, 1, 3, 6, 9}));
-    params->SetItem(new PyInt(26), new BuiltinSet({0, 1, 3}));
-    params->SetItem(new PyInt(27), new BuiltinSet({0, 1, 2, 3, 6, 7, 9}));
-    params->SetItem(new PyInt(28), new BuiltinSet({0, 1, 3, 4}));
-    params->SetItem(new PyInt(29), new BuiltinSet({0, 1, 3, 4, 6}));
-    params->SetItem(new PyInt(30), new BuiltinSet({0, 1, 3, 4, 5, 9}));
-    params->SetItem(new PyInt(32), new BuiltinSet({0, 1, 2, 3, 6, 7}));
-    params->SetItem(new PyInt(33), new BuiltinSet({0, 1, 2, 3, 6}));
-    params->SetItem(new PyInt(34), new BuiltinSet({0, 1, 2, 3, 6}));
-    params->SetItem(new PyInt(35), new BuiltinSet({0, 1, 2, 3, 4, 5, 9, 10, 11}));
-    params->SetItem(new PyInt(36), new BuiltinSet({0, 1, 2, 3, 4, 5, 9}));
-    params->SetItem(new PyInt(37), new BuiltinSet({0, 1, 2, 3, 4, 5, 9, 10}));
-    params->SetItem(new PyInt(38), new BuiltinSet({0, 1, 2, 3, 6}));
+    params->SetItem(new PyInt(infoEventOreMined), new BuiltinSet({0, 1, 2, 3, 4}));
+    params->SetItem(new PyInt(infoEventSalvagingAttempts), new BuiltinSet({0, 1, 2, 3, 6}));
+    params->SetItem(new PyInt(infoEventHackingAttempts), new BuiltinSet({0, 1, 2, 3, 6}));
+    params->SetItem(new PyInt(infoEventArcheologyAttempts), new BuiltinSet({0, 1, 2, 3, 6}));
+    params->SetItem(new PyInt(infoEventScanningAttempts), new BuiltinSet({0, 1, 2, 3, 4, 5}));
+    params->SetItem(new PyInt(infoEventFleet), new BuiltinSet({0, 1, 3}));
+    params->SetItem(new PyInt(infoEventFleetCreated), new BuiltinSet({0, 1, 3, 4}));
+    params->SetItem(new PyInt(infoEventFleetBroadcast), new BuiltinSet({0, 1, 3, 4}));
+    params->SetItem(new PyInt(infoEventNPCKilled), new BuiltinSet({0, 1, 2, 3, 4}));
+    params->SetItem(new PyInt(infoEventRefinedTypesAmount), new BuiltinSet({0, 1, 2, 3, 9}));
+    params->SetItem(new PyInt(infoEventRefiningYieldTypesAmount), new BuiltinSet({0, 1, 2, 3, 9}));
+    params->SetItem(new PyInt(infoEventPlanetResourceDepletion), new BuiltinSet({0, 1, 2, 3, 4, 5}));
+    params->SetItem(new PyInt(infoEventPlanetResourceScanning), new BuiltinSet({0, 1, 2, 3, 4, 5, 9, 10}));
+    params->SetItem(new PyInt(infoEventPlanetUserAccess), new BuiltinSet({0, 1, 3, 4, 5}));
+    params->SetItem(new PyInt(infoEventPlanetInstallProgramQuery), new BuiltinSet({0, 1, 3, 4}));
+    params->SetItem(new PyInt(infoEventPlanetUpdateNetwork), new BuiltinSet({0, 1, 2, 3, 4, 5}));
+    params->SetItem(new PyInt(infoEventPlanetAbandonPlanet), new BuiltinSet({0, 1, 3, 4}));
+    params->SetItem(new PyInt(infoEventPlanetEstablishColony), new BuiltinSet({0, 1, 3, 4}));
+    params->SetItem(new PyInt(infoEventEntityKillWithoutBounty), new BuiltinSet({0, 1, 2, 3, 4, 5, 9}));
+    params->SetItem(new PyInt(infoEventNexCloseNex), new BuiltinSet({0, 1, 2, 3}));
+    params->SetItem(new PyInt(infoEventViewStateUsage), new BuiltinSet({0, 1, 3, 6, 9}));
+    params->SetItem(new PyInt(infoEventDoubleclickToMove), new BuiltinSet({0, 1, 3}));
+    params->SetItem(new PyInt(infoEventCCDuration), new BuiltinSet({0, 1, 2, 3, 6, 7, 9}));
+    params->SetItem(new PyInt(infoEvenTrackingCameraEnabled), new BuiltinSet({0, 1, 3, 4}));
+    params->SetItem(new PyInt(infoEventRadialMenuAction), new BuiltinSet({0, 1, 3, 4, 6}));
+    params->SetItem(new PyInt(infoEventISISCounters), new BuiltinSet({0, 1, 3, 4, 5, 9}));
+    params->SetItem(new PyInt(infoEventCareerFunnel), new BuiltinSet({0, 1, 2, 3, 6, 7}));
+    params->SetItem(new PyInt(infoEventWndOpenedFirstTime), new BuiltinSet({0, 1, 2, 3, 6}));
+    params->SetItem(new PyInt(infoEventWndOpenedCounters), new BuiltinSet({0, 1, 2, 3, 6}));
+    params->SetItem(new PyInt(infoEventTaskCompleted), new BuiltinSet({0, 1, 2, 3, 4, 5, 9, 10, 11}));
+    params->SetItem(new PyInt(infoEventCharacterCreationStep), new BuiltinSet({0, 1, 2, 3, 4, 5, 9}));
+    params->SetItem(new PyInt(infoEventCharacterFinalStep), new BuiltinSet({0, 1, 2, 3, 4, 5, 9, 10}));
+    params->SetItem(new PyInt(infoEventVideoPlayed), new BuiltinSet({0, 1, 2, 3, 6}));
     rsp->SetItemString("infoTypeParameters", params);
 
     std::vector<int32> infoTypesVals = {
-        2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-        21, 22, 24, 25, 26, 27, 28, 29, 30, 32, 33, 34, 35, 36, 37, 38
+        infoEventOreMined,
+        infoEventSalvagingAttempts,
+        infoEventHackingAttempts,
+        infoEventArcheologyAttempts,
+        infoEventScanningAttempts,
+        infoEventFleet,
+        infoEventFleetCreated,
+        infoEventFleetBroadcast,
+        infoEventNPCKilled,
+        infoEventRefinedTypesAmount,
+        infoEventRefiningYieldTypesAmount,
+        infoEventPlanetResourceDepletion,
+        infoEventPlanetResourceScanning,
+        infoEventPlanetUserAccess,
+        infoEventPlanetInstallProgramQuery,
+        infoEventPlanetUpdateNetwork,
+        infoEventPlanetAbandonPlanet,
+        infoEventPlanetEstablishColony,
+        infoEventEntityKillWithoutBounty,
+        infoEventNexCloseNex,
+        infoEventViewStateUsage,
+        infoEventDoubleclickToMove,
+        infoEventCCDuration,
+        infoEvenTrackingCameraEnabled,
+        infoEventRadialMenuAction,
+        infoEventISISCounters,
+        infoEventCareerFunnel,
+        infoEventWndOpenedFirstTime,
+        infoEventWndOpenedCounters,
+        infoEventTaskCompleted,
+        infoEventCharacterCreationStep,
+        infoEventCharacterFinalStep,
+        infoEventVideoPlayed
     };
 
     rsp->SetItemString("infoTypes", new BuiltinSet(infoTypesVals));
