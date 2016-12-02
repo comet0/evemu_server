@@ -72,6 +72,21 @@ PyResult CharUnboundMgrService::Handle_IsUserReceivingCharacter(PyCallArgs &call
     return new PyBool(false);
 }
 
+// TODO: Setup this to return more valid errors to client
+/* ValidateNameEx: Returns Int status of client provided name
+ *
+ * @param name The character name the client wishes to check.
+ * @return An int with the following rules
+ *  1    = Success, name is free and valid
+ *  -1   = TooShort, Name is too short, < 3
+ *  -2   = TooLong, Name is too long, Name <= 24, Family name <= 12, 1 space between Name + Family Name (37 char limit)
+ *  -5   = IllegalCharacter, Name contains illegal characters, only A-Z, a-z, 0-9, - (Corp names allow '.' dot)
+ *          ' ', '-' Must not be first or last character in name
+ *  -6   = TooManySpaces, Name contains more than 2 spaces, Allowed(John Smith, John Bob Smith), Not(John Bob Doe Smith)
+ *  -7   = ConsecutiveSpaces, Name contains more than 1 consecutive space
+ *  -101 = Unavailable, Name is taken, Packet dumps contain this
+ *  -102 = Unavailable, Name is taken, Client also prepared for this, unknown what differentiates.
+ */
 PyResult CharUnboundMgrService::Handle_ValidateNameEx(PyCallArgs &call)
 {
     Call_ValidateNameEx arg;
