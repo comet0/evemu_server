@@ -1522,7 +1522,7 @@ void Client::OnCharNowInStation()
     uint32 warID = GetWarFactionID();
     list->AddItem(warID == 0 ? (PyRep*)new PyNone() : (PyRep*)new PyInt(warID));
 
-    PyTuple *tuple = new_tuple001(list);
+    PyTuple *tuple = new_tuple(list);
     // To-DO: Limit broadcast to only characters in station.
     EntityList::Broadcast("OnCharNowInStation", "stationid", &tuple);
 }
