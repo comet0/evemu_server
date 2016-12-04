@@ -289,7 +289,7 @@ RefPtr<_Ty> InventoryItem::_LoadItem(uint32 itemID,
         // Station:
         ///////////////////////////////////////
         case EVEDB::invGroups::Station: {
-            return Station::_LoadItem<Station>( itemID, type, data );
+            return CelestialObject::_LoadItem<Station>( itemID, type, data );
         }
     }
 
